@@ -1,0 +1,900 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>打卡习惯养成助手</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Segoe UI', 'Microsoft YaHei', sans-serif;
+        }
+        
+        body {
+            background: linear-gradient(135deg, #e0f7fa 0%, #f5f5f5 100%);
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding: 20px;
+            color: #333;
+        }
+        
+        .container {
+            width: 100%;
+            max-width: 1100px;
+            background: rgba(255, 255, 255, 0.95);
+            border-radius: 20px;
+            box-shadow: 0 15px 40px rgba(0, 0, 0, 0.12);
+            padding: 30px;
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .header {
+            text-align: center;
+            margin-bottom: 30px;
+            position: relative;
+        }
+        
+        .header::after {
+            content: '';
+            position: absolute;
+            bottom: -10px;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 120px;
+            height: 4px;
+            background: linear-gradient(to right, #26c6da, #00bcd4);
+            border-radius: 2px;
+        }
+        
+        h1 {
+            color: #00838f;
+            font-size: 2.8rem;
+            margin-bottom: 10px;
+            text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.05);
+        }
+        
+        .subtitle {
+            font-size: 1.2rem;
+            color: #555;
+            max-width: 600px;
+            margin: 0 auto 15px;
+        }
+        
+        .date-time {
+            font-size: 1.3rem;
+            color: #00838f;
+            margin-bottom: 30px;
+            display: flex;
+            justify-content: center;
+            gap: 20px;
+            font-weight: 600;
+        }
+        
+        .date-time span {
+            background: rgba(255, 255, 255, 0.7);
+            padding: 10px 20px;
+            border-radius: 30px;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+        }
+        
+        .main-content {
+            display: flex;
+            gap: 30px;
+            margin-bottom: 30px;
+        }
+        
+        @media (max-width: 900px) {
+            .main-content {
+                flex-direction: column;
+            }
+        }
+        
+        .tasks-section {
+            flex: 1;
+            background: rgba(241, 248, 233, 0.5);
+            border-radius: 15px;
+            padding: 25px;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.06);
+        }
+        
+        .calendar-section {
+            flex: 1;
+            background: rgba(227, 242, 253, 0.5);
+            border-radius: 15px;
+            padding: 25px;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.06);
+        }
+        
+        .section-title {
+            color: #00796b;
+            font-size: 1.6rem;
+            margin-bottom: 25px;
+            padding-bottom: 10px;
+            border-bottom: 2px solid rgba(0, 150, 136, 0.3);
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+        
+        .section-title i {
+            font-size: 1.4rem;
+        }
+        
+        .progress-container {
+            background: rgba(255, 255, 255, 0.7);
+            border-radius: 15px;
+            padding: 15px;
+            margin-bottom: 25px;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.05);
+        }
+        
+        .progress-header {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 10px;
+            color: #555;
+            font-size: 1.1rem;
+        }
+        
+        .progress-bar {
+            height: 22px;
+            background: #e0e0e0;
+            border-radius: 11px;
+            overflow: hidden;
+        }
+        
+        .progress {
+            height: 100%;
+            background: linear-gradient(to right, #26c6da, #00bcd4);
+            border-radius: 11px;
+            width: 0%;
+            transition: width 0.5s ease;
+        }
+        
+        .add-task {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 25px;
+        }
+        
+        .add-task input {
+            flex: 1;
+            padding: 15px 20px;
+            border: none;
+            border-radius: 50px;
+            background: rgba(255, 255, 255, 0.8);
+            font-size: 1.1rem;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.06);
+            outline: none;
+            transition: all 0.3s ease;
+        }
+        
+        .add-task input:focus {
+            box-shadow: 0 4px 12px rgba(38, 198, 218, 0.3);
+        }
+        
+        .add-task button {
+            background: linear-gradient(to right, #26c6da, #00bcd4);
+            color: white;
+            border: none;
+            border-radius: 50px;
+            padding: 15px 25px;
+            font-size: 1.1rem;
+            font-weight: bold;
+            cursor: pointer;
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.12);
+            transition: all 0.3s ease;
+        }
+        
+        .add-task button:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 6px 15px rgba(0, 0, 0, 0.15);
+        }
+        
+        .tasks-container {
+            margin-bottom: 20px;
+            max-height: 350px;
+            overflow-y: auto;
+            padding-right: 10px;
+        }
+        
+        .tasks-container::-webkit-scrollbar {
+            width: 8px;
+        }
+        
+        .tasks-container::-webkit-scrollbar-track {
+            background: rgba(0, 0, 0, 0.05);
+            border-radius: 10px;
+        }
+        
+        .tasks-container::-webkit-scrollbar-thumb {
+            background: #26c6da;
+            border-radius: 10px;
+        }
+        
+        .task-list {
+            list-style: none;
+        }
+        
+        .task-item {
+            display: flex;
+            align-items: center;
+            background: rgba(255, 255, 255, 0.8);
+            padding: 16px 20px;
+            border-radius: 15px;
+            margin-bottom: 15px;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.06);
+            animation: slideIn 0.3s ease;
+            transition: all 0.3s ease;
+        }
+        
+        @keyframes slideIn {
+            from {
+                opacity: 0;
+                transform: translateY(20px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+        
+        .task-item:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 6px 12px rgba(0, 0, 0, 0.1);
+        }
+        
+        .task-item.completed {
+            background: rgba(240, 240, 240, 0.7);
+        }
+        
+        .task-item.completed .task-text {
+            text-decoration: line-through;
+            color: #777;
+        }
+        
+        .task-checkbox {
+            margin-right: 15px;
+            width: 22px;
+            height: 22px;
+            cursor: pointer;
+        }
+        
+        .task-text {
+            flex: 1;
+            font-size: 1.15rem;
+            padding: 0 10px;
+        }
+        
+        .delete-btn {
+            background: #ff6b6b;
+            color: white;
+            border: none;
+            border-radius: 50%;
+            width: 32px;
+            height: 32px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            cursor: pointer;
+            opacity: 0.8;
+            transition: all 0.3s ease;
+        }
+        
+        .delete-btn:hover {
+            opacity: 1;
+            transform: scale(1.1);
+        }
+        
+        .empty-state {
+            text-align: center;
+            padding: 40px 20px;
+            color: #777;
+            background: rgba(255, 255, 255, 0.6);
+            border-radius: 15px;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.05);
+        }
+        
+        .empty-state i {
+            font-size: 3.5rem;
+            margin-bottom: 15px;
+            color: #26c6da;
+        }
+        
+        .empty-state h3 {
+            font-size: 1.5rem;
+            margin-bottom: 10px;
+            color: #00838f;
+        }
+        
+        .calendar-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+        }
+        
+        .calendar-nav {
+            display: flex;
+            gap: 15px;
+        }
+        
+        .calendar-nav button {
+            background: #26c6da;
+            color: white;
+            border: none;
+            border-radius: 50%;
+            width: 40px;
+            height: 40px;
+            font-size: 1.2rem;
+            cursor: pointer;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+            transition: all 0.3s ease;
+        }
+        
+        .calendar-nav button:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 6px 12px rgba(0, 0, 0, 0.15);
+        }
+        
+        .current-month {
+            font-size: 1.5rem;
+            font-weight: 600;
+            color: #00838f;
+        }
+        
+        .calendar-weekdays {
+            display: grid;
+            grid-template-columns: repeat(7, 1fr);
+            gap: 8px;
+            margin-bottom: 10px;
+            text-align: center;
+            font-weight: 600;
+            color: #00838f;
+        }
+        
+        .calendar-days {
+            display: grid;
+            grid-template-columns: repeat(7, 1fr);
+            gap: 8px;
+        }
+        
+        .calendar-day {
+            height: 45px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            border-radius: 10px;
+            font-weight: 600;
+            background: rgba(255, 255, 255, 0.7);
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.05);
+            position: relative;
+            cursor: pointer;
+            transition: all 0.2s ease;
+        }
+        
+        .calendar-day:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+        }
+        
+        .calendar-day.today {
+            background: rgba(255, 236, 179, 0.7);
+            color: #ff9800;
+        }
+        
+        .calendar-day.checked {
+            background: rgba(165, 214, 167, 0.7);
+            color: #2e7d32;
+        }
+        
+        .calendar-day .date {
+            font-size: 1.1rem;
+        }
+        
+        .calendar-day .task-dot {
+            width: 6px;
+            height: 6px;
+            background: #26c6da;
+            border-radius: 50%;
+            margin-top: 3px;
+        }
+        
+        .day-detail {
+            margin-top: 25px;
+            background: rgba(255, 255, 255, 0.7);
+            border-radius: 15px;
+            padding: 20px;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.05);
+        }
+        
+        .day-detail h3 {
+            color: #00838f;
+            margin-bottom: 15px;
+            font-size: 1.4rem;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        
+        .day-tasks {
+            list-style: none;
+            max-height: 200px;
+            overflow-y: auto;
+            padding-right: 10px;
+        }
+        
+        .day-tasks::-webkit-scrollbar {
+            width: 6px;
+        }
+        
+        .day-tasks::-webkit-scrollbar-track {
+            background: rgba(0, 0, 0, 0.05);
+            border-radius: 10px;
+        }
+        
+        .day-tasks::-webkit-scrollbar-thumb {
+            background: #26c6da;
+            border-radius: 10px;
+        }
+        
+        .day-task {
+            padding: 12px 15px;
+            background: white;
+            border-radius: 10px;
+            margin-bottom: 10px;
+            display: flex;
+            align-items: center;
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.05);
+            animation: fadeIn 0.3s ease;
+        }
+        
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        
+        .day-task i {
+            margin-right: 10px;
+            color: #26c6da;
+        }
+        
+        .footer {
+            text-align: center;
+            color: #666;
+            font-size: 1rem;
+            padding-top: 20px;
+            border-top: 1px solid rgba(0, 0, 0, 0.1);
+        }
+        
+        .motivation {
+            font-style: italic;
+            color: #26c6da;
+            margin: 5px 0;
+        }
+        
+        .completed-count {
+            background: #26c6da;
+            color: white;
+            border-radius: 20px;
+            padding: 8px 20px;
+            font-weight: bold;
+            display: inline-block;
+            margin-top: 10px;
+            font-size: 1.1rem;
+        }
+        
+        @media (max-width: 600px) {
+            .container {
+                padding: 20px;
+            }
+            
+            h1 {
+                font-size: 2.2rem;
+            }
+            
+            .date-time {
+                flex-direction: column;
+                align-items: center;
+                gap: 10px;
+            }
+            
+            .add-task {
+                flex-direction: column;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1><i class="fas fa-calendar-check"></i> 打卡习惯养成助手</h1>
+            <p class="subtitle">坚持每一天，成就更好的自己！记录你的进步，见证你的成长</p>
+            <div class="date-time">
+                <span id="current-date">2023年10月15日 星期日</span>
+                <span id="current-time">00:00:00</span>
+            </div>
+        </div>
+        
+        <div class="main-content">
+            <div class="tasks-section">
+                <h2 class="section-title"><i class="fas fa-tasks"></i> 打卡事项</h2>
+                
+                <div class="progress-container">
+                    <div class="progress-header">
+                        <span>今日打卡进度</span>
+                        <span id="progress-text">0%</span>
+                    </div>
+                    <div class="progress-bar">
+                        <div class="progress" id="progress-bar"></div>
+                    </div>
+                </div>
+                
+                <div class="add-task">
+                    <input type="text" id="task-input" placeholder="添加新的打卡任务...">
+                    <button id="add-task-btn"><i class="fas fa-plus"></i> 添加</button>
+                </div>
+                
+                <div class="tasks-container">
+                    <ul class="task-list" id="task-list">
+                        <!-- 任务会动态添加到这里 -->
+                    </ul>
+                </div>
+            </div>
+            
+            <div class="calendar-section">
+                <h2 class="section-title"><i class="fas fa-calendar-alt"></i> 打卡日历</h2>
+                
+                <div class="calendar-header">
+                    <div class="calendar-nav">
+                        <button id="prev-month"><i class="fas fa-chevron-left"></i></button>
+                        <button id="next-month"><i class="fas fa-chevron-right"></i></button>
+                    </div>
+                    <div class="current-month" id="current-month">2023年10月</div>
+                </div>
+                
+                <div class="calendar-weekdays">
+                    <div>日</div>
+                    <div>一</div>
+                    <div>二</div>
+                    <div>三</div>
+                    <div>四</div>
+                    <div>五</div>
+                    <div>六</div>
+                </div>
+                
+                <div class="calendar-days" id="calendar-days">
+                    <!-- 日历天数会动态生成 -->
+                </div>
+                
+                <div class="day-detail">
+                    <h3><i class="fas fa-calendar-day"></i> <span id="day-title">今日任务</span></h3>
+                    <ul class="day-tasks" id="day-tasks">
+                        <!-- 任务会动态添加到这里 -->
+                    </ul>
+                </div>
+            </div>
+        </div>
+        
+        <div class="footer">
+            <p class="motivation">"坚持不是看到希望才坚持，而是坚持了才会看到希望。"</p>
+            <p>每日坚持，成就更好的自己！</p>
+            <div class="completed-count">
+                已完成: <span id="completed-count">0</span> / <span id="total-count">0</span>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // 更新日期和时间
+        function updateDateTime() {
+            const now = new Date();
+            
+            // 格式化日期
+            const year = now.getFullYear();
+            const month = now.getMonth() + 1;
+            const date = now.getDate();
+            const day = now.getDay();
+            const days = ['星期日', '星期一', '星期二', '星期三', '星期四', '星期五', '星期六'];
+            
+            // 格式化时间
+            const hours = String(now.getHours()).padStart(2, '0');
+            const minutes = String(now.getMinutes()).padStart(2, '0');
+            const seconds = String(now.getSeconds()).padStart(2, '0');
+            
+            // 更新页面元素
+            document.getElementById('current-date').textContent = `${year}年${month}月${date}日 ${days[day]}`;
+            document.getElementById('current-time').textContent = `${hours}:${minutes}:${seconds}`;
+        }
+        
+        // 初始化日期和时间，并每秒更新一次
+        updateDateTime();
+        setInterval(updateDateTime, 1000);
+        
+        // 任务数组
+        let tasks = JSON.parse(localStorage.getItem('tasks')) || [];
+        
+        // 任务历史记录
+        let taskHistory = JSON.parse(localStorage.getItem('taskHistory')) || {};
+        
+        // 初始化任务列表
+        function initTasks() {
+            const taskList = document.getElementById('task-list');
+            
+            if (tasks.length === 0) {
+                taskList.innerHTML = `
+                    <div class="empty-state">
+                        <i class="fas fa-tasks"></i>
+                        <h3>暂无打卡任务</h3>
+                        <p>添加您的第一个打卡任务，开始自律生活吧！</p>
+                    </div>
+                `;
+                updateProgress();
+                return;
+            }
+            
+            taskList.innerHTML = '';
+            
+            tasks.forEach((task, index) => {
+                const taskItem = document.createElement('li');
+                taskItem.className = `task-item ${task.completed ? 'completed' : ''}`;
+                taskItem.innerHTML = `
+                    <input type="checkbox" class="task-checkbox" ${task.completed ? 'checked' : ''} data-index="${index}">
+                    <div class="task-text">${task.text}</div>
+                    <button class="delete-btn" data-index="${index}"><i class="fas fa-trash"></i></button>
+                `;
+                taskList.appendChild(taskItem);
+            });
+            
+            // 添加事件监听器
+            document.querySelectorAll('.task-checkbox').forEach(checkbox => {
+                checkbox.addEventListener('change', toggleTask);
+            });
+            
+            document.querySelectorAll('.delete-btn').forEach(button => {
+                button.addEventListener('click', deleteTask);
+            });
+            
+            updateProgress();
+        }
+        
+        // 添加新任务
+        function addTask() {
+            const taskInput = document.getElementById('task-input');
+            const text = taskInput.value.trim();
+            
+            if (text === '') {
+                taskInput.focus();
+                return;
+            }
+            
+            tasks.push({
+                text: text,
+                completed: false,
+                createdAt: new Date()
+            });
+            
+            localStorage.setItem('tasks', JSON.stringify(tasks));
+            taskInput.value = '';
+            taskInput.focus();
+            
+            initTasks();
+            renderCalendar(currentMonth, currentYear);
+            updateDayTasks();
+        }
+        
+        // 切换任务状态
+        function toggleTask(e) {
+            const index = e.target.dataset.index;
+            tasks[index].completed = !tasks[index].completed;
+            
+            // 更新任务历史
+            const today = new Date();
+            const dateKey = `${today.getFullYear()}-${today.getMonth()+1}-${today.getDate()}`;
+            
+            if (!taskHistory[dateKey]) {
+                taskHistory[dateKey] = [];
+            }
+            
+            if (tasks[index].completed) {
+                // 添加到历史记录
+                if (!taskHistory[dateKey].includes(index)) {
+                    taskHistory[dateKey].push(index);
+                }
+            } else {
+                // 从历史记录中移除
+                const taskIndex = taskHistory[dateKey].indexOf(index);
+                if (taskIndex !== -1) {
+                    taskHistory[dateKey].splice(taskIndex, 1);
+                }
+            }
+            
+            localStorage.setItem('tasks', JSON.stringify(tasks));
+            localStorage.setItem('taskHistory', JSON.stringify(taskHistory));
+            
+            initTasks();
+            renderCalendar(currentMonth, currentYear);
+            updateDayTasks();
+        }
+        
+        // 删除任务
+        function deleteTask(e) {
+            const index = e.target.closest('.delete-btn').dataset.index;
+            tasks.splice(index, 1);
+            localStorage.setItem('tasks', JSON.stringify(tasks));
+            
+            // 从所有历史记录中删除该任务
+            for (const date in taskHistory) {
+                const taskIndex = taskHistory[date].indexOf(parseInt(index));
+                if (taskIndex !== -1) {
+                    taskHistory[date].splice(taskIndex, 1);
+                }
+            }
+            
+            localStorage.setItem('taskHistory', JSON.stringify(taskHistory));
+            
+            initTasks();
+            renderCalendar(currentMonth, currentYear);
+            updateDayTasks();
+        }
+        
+        // 更新进度
+        function updateProgress() {
+            const totalTasks = tasks.length;
+            const completedTasks = tasks.filter(task => task.completed).length;
+            const progress = totalTasks === 0 ? 0 : Math.round((completedTasks / totalTasks) * 100);
+            
+            document.getElementById('progress-bar').style.width = `${progress}%`;
+            document.getElementById('progress-text').textContent = `${progress}%`;
+            document.getElementById('completed-count').textContent = completedTasks;
+            document.getElementById('total-count').textContent = totalTasks;
+        }
+        
+        // 更新今日任务区域
+        function updateDayTasks(date = null) {
+            const dayTasksElement = document.getElementById('day-tasks');
+            dayTasksElement.innerHTML = '';
+            
+            let title = '今日任务';
+            let tasksToShow = [];
+            let dateKey;
+            
+            if (!date) {
+                const today = new Date();
+                dateKey = `${today.getFullYear()}-${today.getMonth()+1}-${today.getDate()}`;
+            } else {
+                dateKey = `${date.getFullYear()}-${date.getMonth()+1}-${date.getDate()}`;
+                title = `${date.getMonth()+1}月${date.getDate()}日任务`;
+            }
+            
+            document.getElementById('day-title').textContent = title;
+            
+            // 如果该日期有历史记录
+            if (taskHistory[dateKey]) {
+                taskHistory[dateKey].forEach(taskIndex => {
+                    if (tasks[taskIndex]) {
+                        const task = tasks[taskIndex];
+                        const taskElement = document.createElement('li');
+                        taskElement.className = 'day-task';
+                        taskElement.innerHTML = `<i class="fas fa-check-circle"></i> ${task.text}`;
+                        dayTasksElement.appendChild(taskElement);
+                    }
+                });
+            }
+            
+            if (dayTasksElement.children.length === 0) {
+                const emptyMsg = document.createElement('li');
+                emptyMsg.className = 'day-task';
+                emptyMsg.innerHTML = `<i class="fas fa-info-circle"></i> 该日期没有完成的任务`;
+                dayTasksElement.appendChild(emptyMsg);
+            }
+        }
+        
+        // 日历功能
+        const weekdays = ['日', '一', '二', '三', '四', '五', '六'];
+        const months = ['1月', '2月', '3月', '4月', '5月', '6月', '7月', '8月', '9月', '10月', '11月', '12月'];
+        let currentDate = new Date();
+        let currentMonth = currentDate.getMonth();
+        let currentYear = currentDate.getFullYear();
+        
+        // 渲染日历
+        function renderCalendar(month, year) {
+            const calendarDays = document.getElementById('calendar-days');
+            calendarDays.innerHTML = '';
+            
+            const firstDay = new Date(year, month, 1).getDay();
+            const daysInMonth = new Date(year, month + 1, 0).getDate();
+            const today = new Date();
+            
+            // 更新月份标题
+            document.getElementById('current-month').textContent = `${year}年${months[month]}`;
+            
+            // 填充空白
+            for (let i = 0; i < firstDay; i++) {
+                const emptyDay = document.createElement('div');
+                emptyDay.className = 'calendar-day';
+                calendarDays.appendChild(emptyDay);
+            }
+            
+            // 填充日期
+            for (let day = 1; day <= daysInMonth; day++) {
+                const dayElement = document.createElement('div');
+                dayElement.className = 'calendar-day';
+                
+                // 检查今天
+                if (day === today.getDate() && month === today.getMonth() && year === today.getFullYear()) {
+                    dayElement.classList.add('today');
+                }
+                
+                // 检查是否有任务完成
+                const dateKey = `${year}-${month+1}-${day}`;
+                const hasTask = taskHistory[dateKey] && taskHistory[dateKey].length > 0;
+                
+                if (hasTask) {
+                    dayElement.classList.add('checked');
+                }
+                
+                dayElement.innerHTML = `
+                    <div class="date">${day}</div>
+                    ${hasTask ? '<div class="task-dot"></div>' : ''}
+                `;
+                
+                // 添加点击事件
+                dayElement.addEventListener('click', () => {
+                    // 移除之前选中的样式
+                    document.querySelectorAll('.calendar-day.selected').forEach(el => {
+                        el.classList.remove('selected');
+                    });
+                    
+                    // 添加选中样式
+                    dayElement.classList.add('selected');
+                    
+                    // 显示该日期的任务
+                    const selectedDate = new Date(year, month, day);
+                    updateDayTasks(selectedDate);
+                });
+                
+                calendarDays.appendChild(dayElement);
+            }
+        }
+        
+        // 事件监听器
+        document.getElementById('add-task-btn').addEventListener('click', addTask);
+        document.getElementById('task-input').addEventListener('keypress', (e) => {
+            if (e.key === 'Enter') {
+                addTask();
+            }
+        });
+        
+        document.getElementById('prev-month').addEventListener('click', () => {
+            currentMonth--;
+            if (currentMonth < 0) {
+                currentMonth = 11;
+                currentYear--;
+            }
+            renderCalendar(currentMonth, currentYear);
+        });
+        
+        document.getElementById('next-month').addEventListener('click', () => {
+            currentMonth++;
+            if (currentMonth > 11) {
+                currentMonth = 0;
+                currentYear++;
+            }
+            renderCalendar(currentMonth, currentYear);
+        });
+        
+        // 初始化任务列表、日历和今日任务
+        initTasks();
+        renderCalendar(currentMonth, currentYear);
+        updateDayTasks();
+    </script>
+</body>
+</html>
