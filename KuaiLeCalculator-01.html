@@ -1,0 +1,580 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>奶茶热量计算器 - 升级版</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+        
+        body {
+            background: linear-gradient(135deg, #f5f7fa 0%, #e4edf5 100%);
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding: 20px;
+            color: #333;
+        }
+        
+        .container {
+            background: white;
+            border-radius: 20px;
+            box-shadow: 0 15px 30px rgba(0, 0, 0, 0.15);
+            width: 100%;
+            max-width: 1000px;
+            overflow: hidden;
+            display: flex;
+            flex-direction: column;
+        }
+        
+        header {
+            background: linear-gradient(90deg, #ff9a9e 0%, #fad0c4 100%);
+            color: white;
+            padding: 25px 40px;
+            text-align: center;
+        }
+        
+        h1 {
+            font-size: 2.8rem;
+            margin-bottom: 10px;
+            text-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+        }
+        
+        .subtitle {
+            font-size: 1.2rem;
+            opacity: 0.9;
+            max-width: 600px;
+            margin: 0 auto;
+        }
+        
+        .content {
+            display: flex;
+            padding: 0;
+        }
+        
+        .calculator {
+            flex: 1;
+            padding: 30px;
+            background: #f8f9fa;
+        }
+        
+        .result {
+            flex: 1;
+            padding: 30px;
+            background: #fff;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+        }
+        
+        .section {
+            margin-bottom: 25px;
+        }
+        
+        h2 {
+            font-size: 1.5rem;
+            color: #ff6b81;
+            margin-bottom: 15px;
+            padding-bottom: 8px;
+            border-bottom: 2px solid #ffccd5;
+        }
+        
+        .options {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+            gap: 15px;
+            margin-top: 10px;
+        }
+        
+        .option {
+            background: white;
+            border: 2px solid #e0e0e0;
+            border-radius: 12px;
+            padding: 15px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            text-align: center;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+        
+        .option:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.08);
+        }
+        
+        .option.selected {
+            border-color: #ff6b81;
+            background: #fff5f7;
+            box-shadow: 0 5px 15px rgba(255, 107, 129, 0.2);
+        }
+        
+        .option i {
+            font-size: 2rem;
+            margin-bottom: 10px;
+            color: #ff6b81;
+        }
+        
+        .option h3 {
+            font-size: 1rem;
+            margin-bottom: 5px;
+        }
+        
+        .option .calories {
+            font-size: 0.85rem;
+            color: #666;
+        }
+        
+        .toppings {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(100px, 1fr));
+            gap: 12px;
+        }
+        
+        .topping {
+            background: white;
+            border: 2px solid #e0e0e0;
+            border-radius: 10px;
+            padding: 10px;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+        
+        .topping:hover {
+            transform: scale(1.05);
+        }
+        
+        .topping.selected {
+            border-color: #ff6b81;
+            background: #fff5f7;
+            box-shadow: 0 5px 15px rgba(255, 107, 129, 0.2);
+        }
+        
+        .topping i {
+            font-size: 1.8rem;
+            margin-bottom: 5px;
+            color: #ff6b81;
+        }
+        
+        .topping span {
+            font-size: 0.85rem;
+            text-align: center;
+        }
+        
+        .calculate-btn {
+            background: linear-gradient(90deg, #ff9a9e 0%, #fad0c4 100%);
+            color: white;
+            border: none;
+            border-radius: 50px;
+            padding: 15px 40px;
+            font-size: 1.2rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            width: 100%;
+            margin-top: 10px;
+            box-shadow: 0 5px 15px rgba(255, 107, 129, 0.3);
+        }
+        
+        .calculate-btn:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 8px 20px rgba(255, 107, 129, 0.4);
+        }
+        
+        .calculate-btn:active {
+            transform: translateY(1px);
+        }
+        
+        .result-content {
+            text-align: center;
+            width: 100%;
+        }
+        
+        .cup {
+            width: 200px;
+            height: 250px;
+            background: linear-gradient(to bottom, #f8f9fa 0%, #e9ecef 100%);
+            border: 5px solid #dee2e6;
+            border-radius: 15px 15px 60px 60px;
+            margin: 0 auto 30px;
+            position: relative;
+            overflow: hidden;
+            box-shadow: inset 0 0 20px rgba(0, 0, 0, 0.1);
+        }
+        
+        .liquid {
+            position: absolute;
+            bottom: 0;
+            width: 100%;
+            background: linear-gradient(to bottom, #a1887f 0%, #8d6e63 100%);
+            border-radius: 0 0 55px 55px;
+            transition: height 1s ease;
+            height: 0;
+        }
+        
+        .bubble {
+            position: absolute;
+            background: rgba(255, 255, 255, 0.4);
+            border-radius: 50%;
+            animation: float 3s infinite ease-in-out;
+        }
+        
+        @keyframes float {
+            0%, 100% { transform: translateY(0); }
+            50% { transform: translateY(-20px); }
+        }
+        
+        .calories-display {
+            font-size: 3.5rem;
+            font-weight: 700;
+            color: #ff6b81;
+            margin: 20px 0;
+        }
+        
+        .kcal {
+            font-size: 1.5rem;
+            color: #666;
+            vertical-align: super;
+        }
+        
+        .calories-comparison {
+            background: #f8f9fa;
+            border-radius: 15px;
+            padding: 20px;
+            margin-top: 20px;
+            width: 100%;
+        }
+        
+        .comparison-item {
+            display: flex;
+            justify-content: space-between;
+            padding: 10px 0;
+            border-bottom: 1px solid #eee;
+        }
+        
+        .comparison-item:last-child {
+            border-bottom: none;
+        }
+        
+        .item-name {
+            font-weight: 500;
+        }
+        
+        .item-value {
+            color: #ff6b81;
+            font-weight: 600;
+        }
+        
+        .tips {
+            margin-top: 30px;
+            background: #fff5f7;
+            padding: 20px;
+            border-radius: 15px;
+            width: 100%;
+        }
+        
+        .tips h3 {
+            color: #ff6b81;
+            margin-bottom: 15px;
+            text-align: center;
+        }
+        
+        .tips ul {
+            padding-left: 20px;
+        }
+        
+        .tips li {
+            margin-bottom: 10px;
+            line-height: 1.5;
+        }
+        
+        @media (max-width: 768px) {
+            .content {
+                flex-direction: column;
+            }
+            
+            h1 {
+                font-size: 2.2rem;
+            }
+            
+            .options {
+                grid-template-columns: repeat(auto-fit, minmax(130px, 1fr));
+            }
+            
+            .toppings {
+                grid-template-columns: repeat(auto-fit, minmax(90px, 1fr));
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1><i class="fas fa-mug-hot"></i> 奶茶热量计算器</h1>
+            <p class="subtitle">选择您的奶茶偏好，计算总热量并了解其健康影响</p>
+        </header>
+        
+        <div class="content">
+            <div class="calculator">
+                <div class="section">
+                    <h2><i class="fas fa-glass-whiskey"></i> 选择奶茶类型</h2>
+                    <div class="options">
+                        <div class="option selected" data-type="milk" data-calories="250">
+                            <i class="fas fa-coffee"></i>
+                            <h3>珍珠奶茶</h3>
+                            <div class="calories">约 250 大卡</div>
+                        </div>
+                        <div class="option" data-type="fruit" data-calories="180">
+                            <i class="fas fa-apple-alt"></i>
+                            <h3>水果茶</h3>
+                            <div class="calories">约 180 大卡</div>
+                        </div>
+                        <div class="option" data-type="cheese" data-calories="320">
+                            <i class="fas fa-cheese"></i>
+                            <h3>芝士奶盖</h3>
+                            <div class="calories">约 320 大卡</div>
+                        </div>
+                        <div class="option" data-type="matcha" data-calories="220">
+                            <i class="fas fa-leaf"></i>
+                            <h3>抹茶拿铁</h3>
+                            <div class="calories">约 220 大卡</div>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="section">
+                    <h2><i class="fas fa-cube"></i> 选择加料</h2>
+                    <div class="toppings">
+                        <div class="topping" data-topping="pearl" data-calories="100">
+                            <i class="fas fa-circle"></i>
+                            <span>珍珠</span>
+                        </div>
+                        <div class="topping" data-topping="pudding" data-calories="80">
+                            <i class="fas fa-square"></i>
+                            <span>布丁</span>
+                        </div>
+                        <div class="topping" data-topping="coconut" data-calories="60">
+                            <i class="fas fa-cloud"></i>
+                            <span>椰果</span>
+                        </div>
+                        <div class="topping" data-topping="redbean" data-calories="70">
+                            <i class="fas fa-heart"></i>
+                            <span>红豆</span>
+                        </div>
+                        <div class="topping" data-topping="grassjelly" data-calories="40">
+                            <i class="fas fa-cubes"></i>
+                            <span>仙草</span>
+                        </div>
+                        <div class="topping" data-topping="taro" data-calories="90">
+                            <i class="fas fa-dot-circle"></i>
+                            <span>芋圆</span>
+                        </div>
+                        <div class="topping" data-topping="bobo" data-calories="110">
+                            <i class="fas fa-circle-notch"></i>
+                            <span>啵啵</span>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="section">
+                    <h2><i class="fas fa-candy-cane"></i> 糖分选择</h2>
+                    <div class="options">
+                        <div class="option selected" data-sugar="nosugar" data-calories="0">
+                            <i class="fas fa-ban"></i>
+                            <h3>无糖</h3>
+                            <div class="calories">0 大卡</div>
+                        </div>
+                        <div class="option" data-sugar="thirty" data-calories="40">
+                            <i class="fas fa-tint"></i>
+                            <h3>三分糖</h3>
+                            <div class="calories">40 大卡</div>
+                        </div>
+                        <div class="option" data-sugar="half" data-calories="80">
+                            <i class="fas fa-glass-half-full"></i>
+                            <h3>五分糖</h3>
+                            <div class="calories">80 大卡</div>
+                        </div>
+                        <div class="option" data-sugar="seventy" data-calories="120">
+                            <i class="fas fa-glass-three-quarters"></i>
+                            <h3>七分糖</h3>
+                            <div class="calories">120 大卡</div>
+                        </div>
+                        <div class="option" data-sugar="full" data-calories="150">
+                            <i class="fas fa-glass-full"></i>
+                            <h3>全糖</h3>
+                            <div class="calories">150 大卡</div>
+                        </div>
+                    </div>
+                </div>
+                
+                <button class="calculate-btn" id="calculate">
+                    <i class="fas fa-calculator"></i> 计算热量
+                </button>
+            </div>
+            
+            <div class="result">
+                <div class="result-content">
+                    <div class="cup">
+                        <div class="liquid" id="liquid"></div>
+                    </div>
+                    
+                    <h2>您的奶茶总热量</h2>
+                    <div class="calories-display">0 <span class="kcal">大卡</span></div>
+                    
+                    <div class="calories-comparison">
+                        <div class="comparison-item">
+                            <span class="item-name">相当于米饭</span>
+                            <span class="item-value">0 碗</span>
+                        </div>
+                        <div class="comparison-item">
+                            <span class="item-name">相当于苹果</span>
+                            <span class="item-value">0 个</span>
+                        </div>
+                        <div class="comparison-item">
+                            <span class="item-name">需要步行</span>
+                            <span class="item-value">0 分钟</span>
+                        </div>
+                    </div>
+                    
+                    <div class="tips">
+                        <h3><i class="fas fa-lightbulb"></i> 健康小贴士</h3>
+                        <ul>
+                            <li>选择无糖或三分糖可以减少150大卡以上热量</li>
+                            <li>减少加料可以显著降低总热量摄入</li>
+                            <li>建议每周饮用奶茶不超过2杯</li>
+                            <li>搭配均衡饮食和适量运动更健康</li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            // 设置初始选项
+            let selectedType = document.querySelector('.option[data-type].selected');
+            let selectedSugar = document.querySelector('.option[data-sugar].selected');
+            const toppings = document.querySelectorAll('.topping');
+            
+            // 奶茶类型选择
+            document.querySelectorAll('.option[data-type]').forEach(option => {
+                option.addEventListener('click', function() {
+                    document.querySelectorAll('.option[data-type]').forEach(opt => {
+                        opt.classList.remove('selected');
+                    });
+                    this.classList.add('selected');
+                    selectedType = this;
+                });
+            });
+            
+            // 糖分选择
+            document.querySelectorAll('.option[data-sugar]').forEach(option => {
+                option.addEventListener('click', function() {
+                    document.querySelectorAll('.option[data-sugar]').forEach(opt => {
+                        opt.classList.remove('selected');
+                    });
+                    this.classList.add('selected');
+                    selectedSugar = this;
+                });
+            });
+            
+            // 加料选择
+            toppings.forEach(topping => {
+                topping.addEventListener('click', function() {
+                    this.classList.toggle('selected');
+                });
+            });
+            
+            // 计算按钮
+            document.getElementById('calculate').addEventListener('click', calculateCalories);
+            
+            // 初始计算
+            calculateCalories();
+            
+            // 计算热量函数
+            function calculateCalories() {
+                // 获取基础热量
+                const baseCalories = parseInt(selectedType.dataset.calories);
+                
+                // 获取糖分热量
+                const sugarCalories = parseInt(selectedSugar.dataset.calories);
+                
+                // 获取加料热量
+                let toppingsCalories = 0;
+                document.querySelectorAll('.topping.selected').forEach(topping => {
+                    toppingsCalories += parseInt(topping.dataset.calories);
+                });
+                
+                // 计算总热量
+                const totalCalories = baseCalories + sugarCalories + toppingsCalories;
+                
+                // 更新显示
+                document.querySelector('.calories-display').innerHTML = `${totalCalories} <span class="kcal">大卡</span>`;
+                
+                // 更新液体高度（根据热量比例）
+                const liquidHeight = Math.min(90, (totalCalories / 700) * 100);
+                document.getElementById('liquid').style.height = `${liquidHeight}%`;
+                
+                // 添加气泡
+                createBubbles();
+                
+                // 更新热量比较
+                updateComparisons(totalCalories);
+            }
+            
+            // 创建气泡效果
+            function createBubbles() {
+                const cup = document.querySelector('.cup');
+                // 清除现有气泡
+                document.querySelectorAll('.bubble').forEach(bubble => bubble.remove());
+                
+                // 添加新气泡
+                for (let i = 0; i < 15; i++) {
+                    const bubble = document.createElement('div');
+                    bubble.classList.add('bubble');
+                    
+                    // 随机位置和大小
+                    const size = Math.random() * 15 + 5;
+                    const left = Math.random() * 90 + 5;
+                    const delay = Math.random() * 5;
+                    
+                    bubble.style.width = `${size}px`;
+                    bubble.style.height = `${size}px`;
+                    bubble.style.left = `${left}%`;
+                    bubble.style.bottom = '10px';
+                    bubble.style.animationDelay = `${delay}s`;
+                    
+                    cup.appendChild(bubble);
+                }
+            }
+            
+            // 更新热量比较
+            function updateComparisons(calories) {
+                // 计算比较值
+                const rice = (calories / 200).toFixed(1);
+                const apples = (calories / 50).toFixed(1);
+                const walking = Math.round(calories / 5);
+                
+                // 更新显示
+                document.querySelectorAll('.comparison-item .item-value')[0].textContent = `${rice} 碗`;
+                document.querySelectorAll('.comparison-item .item-value')[1].textContent = `${apples} 个`;
+                document.querySelectorAll('.comparison-item .item-value')[2].textContent = `${walking} 分钟`;
+            }
+        });
+    </script>
+</body>
+</html>
