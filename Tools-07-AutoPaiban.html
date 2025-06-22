@@ -1,0 +1,1055 @@
+
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>按月自动排班系统 - 增强版</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+        
+        body {
+            background: linear-gradient(135deg, #f5f7fa 0%, #e4edf5 100%);
+            color: #333;
+            line-height: 1.6;
+            min-height: 100vh;
+            padding: 20px;
+        }
+        
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+        }
+        
+        header {
+            text-align: center;
+            padding: 30px 0;
+            margin-bottom: 30px;
+        }
+        
+        header h1 {
+            font-size: 2.8rem;
+            color: #2c3e50;
+            margin-bottom: 10px;
+            text-shadow: 1px 1px 3px rgba(0,0,0,0.1);
+        }
+        
+        header p {
+            font-size: 1.2rem;
+            color: #7f8c8d;
+            max-width: 700px;
+            margin: 0 auto;
+        }
+        
+        .main-content {
+            display: flex;
+            gap: 25px;
+            flex-wrap: wrap;
+        }
+        
+        .panel {
+            background: white;
+            border-radius: 15px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.08);
+            padding: 25px;
+            flex: 1;
+            min-width: 300px;
+        }
+        
+        .panel-title {
+            font-size: 1.5rem;
+            color: #3498db;
+            margin-bottom: 20px;
+            padding-bottom: 12px;
+            border-bottom: 2px solid #f0f3f7;
+            display: flex;
+            align-items: center;
+        }
+        
+        .panel-title i {
+            margin-right: 10px;
+        }
+        
+        .person-manager {
+            display: flex;
+            margin-bottom: 15px;
+            gap: 10px;
+        }
+        
+        .person-type {
+            padding: 10px 15px;
+            background: #3498db;
+            color: white;
+            border-radius: 8px 0 0 8px;
+            font-weight: 600;
+        }
+        
+        .person-manager input {
+            flex: 1;
+            padding: 12px 15px;
+            border: 2px solid #e0e6ed;
+            border-radius: 0;
+            font-size: 1rem;
+            transition: border-color 0.3s;
+        }
+
+        .person-count {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            margin: 10px 0 15px;
+        }
+
+        .person-count input {
+            width: 80px;
+            padding: 8px 12px;
+            border: 2px solid #e0e6ed;
+            border-radius: 6px;
+            font-size: 1rem;
+        }
+        
+        .person-manager.workday input {
+            border-radius: 0 8px 8px 0;
+        }
+        
+        .person-manager.weekend input {
+            border-radius: 0 8px 8px 0;
+        }
+        
+        .person-manager input:focus {
+            border-color: #3498db;
+            outline: none;
+        }
+        
+        .add-person-btn {
+            background: #3498db;
+            color: white;
+            border: none;
+            padding: 0 25px;
+            border-radius: 0 8px 8px 0;
+            cursor: pointer;
+            font-weight: 600;
+            transition: background 0.3s;
+        }
+        
+        .add-person-btn:hover {
+            background: #2980b9;
+        }
+        
+        .person-list {
+            list-style: none;
+            margin: 20px 0;
+            max-height: 300px;
+            overflow-y: auto;
+        }
+        
+        .person-section {
+            margin-bottom: 25px;
+        }
+        
+        .person-section-title {
+            display: flex;
+            align-items: center;
+            margin-bottom: 15px;
+            font-size: 1.2rem;
+            color: #2c3e50;
+        }
+        
+        .person-section-title i {
+            margin-right: 10px;
+            color: #3498db;
+        }
+        
+        .person-section.workday .person-section-title i {
+            color: #2ecc71;
+        }
+        
+        .person-section.weekend .person-section-title i {
+            color: #f39c12;
+        }
+        
+        .person-section.holiday .person-section-title i {
+            color: #e74c3c;
+        }
+        
+        .person-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 12px 15px;
+            background: #f8fafd;
+            border-radius: 8px;
+            margin-bottom: 10px;
+            transition: transform 0.2s;
+        }
+        
+        .person-item.workday {
+            border-left: 4px solid #2ecc71;
+        }
+        
+        .person-item.weekend {
+            border-left: 4px solid #f39c12;
+        }
+        
+        .person-item.holiday {
+            border-left: 4px solid #e74c3c;
+        }
+        
+        .person-item:hover {
+            transform: translateX(5px);
+        }
+        
+        .delete-person {
+            background: #e74c3c;
+            color: white;
+            border: none;
+            width: 30px;
+            height: 30px;
+            border-radius: 50%;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: background 0.3s;
+        }
+        
+        .delete-person:hover {
+            background: #c0392b;
+        }
+        
+        .month-selector {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+            margin: 25px 0;
+        }
+        
+        .month-selector > div {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        
+        .month-selector select {
+            padding: 10px 15px;
+            border: 2px solid #e0e6ed;
+            border-radius: 8px;
+            font-size: 1rem;
+            background: white;
+            cursor: pointer;
+        }
+        
+        .generate-btn {
+            display: block;
+            width: 100%;
+            padding: 15px;
+            background: #3498db;
+            color: white;
+            border: none;
+            border-radius: 8px;
+            font-size: 1.1rem;
+            font-weight: 600;
+            cursor: pointer;
+            margin: 25px 0;
+            transition: background 0.3s;
+            box-shadow: 0 4px 6px rgba(52, 152, 219, 0.3);
+        }
+        
+        .generate-btn:hover {
+            background: #2980b9;
+            transform: translateY(-2px);
+        }
+        
+        .generate-btn:active {
+            transform: translateY(0);
+        }
+        
+        .calendar {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 20px;
+            background: white;
+            border-radius: 10px;
+            overflow: hidden;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.05);
+        }
+        
+        .calendar-header {
+            background: #3498db;
+            color: white;
+            padding: 15px;
+            text-align: center;
+            font-size: 1.4rem;
+        }
+        
+        .weekdays {
+            background: #2980b9;
+        }
+        
+        .weekdays th {
+            color: white;
+            padding: 12px;
+            text-align: center;
+            font-weight: 500;
+        }
+        
+        .calendar-body td {
+            padding: 15px;
+            text-align: center;
+            border: 1px solid #f0f3f7;
+            height: 120px;
+            vertical-align: top;
+            position: relative;
+        }
+        
+        .calendar-day {
+            position: absolute;
+            top: 5px;
+            right: 5px;
+            font-weight: bold;
+            background: #f8fafd;
+            border-radius: 50%;
+            width: 30px;
+            height: 30px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        
+        .calendar-body tr:nth-child(even) {
+            background: #f8fafd;
+        }
+        
+        .weekday-cell {
+            background: #e8f4fd !important;
+        }
+        
+        .weekend-cell {
+            background: #fef7e0 !important;
+        }
+        
+        .holiday-cell {
+            background: #ffebee !important;
+        }
+        
+        .person-assigned {
+            margin-top: 25px;
+            font-weight: 600;
+            color: #2c3e50;
+            line-height: 1.4;
+        }
+        
+        .person-assigned.workday {
+            color: #2ecc71;
+        }
+        
+        .person-assigned.weekend {
+            color: #f39c12;
+        }
+        
+        .instructions {
+            background: #f8fafd;
+            padding: 20px;
+            border-radius: 10px;
+            margin-top: 25px;
+            border-left: 4px solid #3498db;
+        }
+        
+        .instructions h3 {
+            color: #2c3e50;
+            margin-bottom: 15px;
+            display: flex;
+            align-items: center;
+        }
+        
+        .instructions h3 i {
+            margin-right: 10px;
+            color: #3498db;
+        }
+        
+        .instructions ul {
+            padding-left: 25px;
+        }
+        
+        .instructions li {
+            margin-bottom: 10px;
+        }
+        
+        .instructions li strong {
+            color: #3498db;
+        }
+        
+        @media (max-width: 1100px) {
+            .main-content {
+                flex-direction: column;
+            }
+            
+            .panel {
+                width: 100%;
+            }
+            
+            .person-manager {
+                flex-direction: column;
+            }
+            
+            .person-type {
+                border-radius: 8px 8px 0 0;
+                border-bottom: none;
+            }
+            
+            .person-manager input {
+                border-radius: 0 0 8px 8px;
+            }
+        }
+        
+        @media (max-width: 768px) {
+            .calendar-body td {
+                height: 100px;
+            }
+            
+            .person-assigned {
+                font-size: 0.9rem;
+            }
+        }
+        
+        .empty-message {
+            text-align: center;
+            padding: 30px;
+            color: #7f8c8d;
+            font-style: italic;
+        }
+        
+        .highlight {
+            background: #fff9c4;
+            padding: 2px 5px;
+            border-radius: 4px;
+            font-weight: 600;
+        }
+        
+        .today {
+            background: #ffeb3b !important;
+            color: #333;
+            font-weight: bold;
+        }
+        
+        .other-month {
+            opacity: 0.4;
+        }
+        
+        .nav-buttons {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 15px;
+        }
+        
+        .nav-btn {
+            background: #3498db;
+            color: white;
+            border: none;
+            padding: 8px 15px;
+            border-radius: 5px;
+            cursor: pointer;
+            transition: background 0.3s;
+        }
+        
+        .nav-btn:hover {
+            background: #2980b9;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1><i class="fas fa-calendar-alt"></i> 按月自动排班系统</h1>
+            <p>支持设置每日排班人数，工作日/周末分开管理，自动跳过节假日</p>
+        </header>
+        
+        <div class="main-content">
+            <div class="panel">
+                <h2 class="panel-title"><i class="fas fa-users"></i> 排班人员管理</h2>
+                
+                <!-- 工作日人员管理 -->
+                <div class="person-section workday">
+                    <div class="person-section-title">
+                        <i class="fas fa-building"></i> 工作日人员 (周一至周五)
+                    </div>
+                    <div class="person-count">
+                        <label>每日排班人数：</label>
+                        <input type="number" id="workday-count" min="1" value="1" placeholder="1">
+                    </div>
+                    <div class="person-manager workday">
+                        <div class="person-type">工作日</div>
+                        <input type="text" id="workday-person" placeholder="输入工作日排班人员姓名">
+                        <button class="add-person-btn" id="add-workday-person">
+                            <i class="fas fa-plus"></i> 添加
+                        </button>
+                    </div>
+                    <ul class="person-list" id="workday-person-list">
+                        <!-- 工作日人员列表会动态添加到这里 -->
+                    </ul>
+                </div>
+                
+                <!-- 周末人员管理 -->
+                <div class="person-section weekend">
+                    <div class="person-section-title">
+                        <i class="fas fa-umbrella-beach"></i> 周末人员 (周六至周日)
+                    </div>
+                    <div class="person-count">
+                        <label>每日排班人数：</label>
+                        <input type="number" id="weekend-count" min="1" value="1" placeholder="1">
+                    </div>
+                    <div class="person-manager weekend">
+                        <div class="person-type">周末</div>
+                        <input type="text" id="weekend-person" placeholder="输入周末排班人员姓名">
+                        <button class="add-person-btn" id="add-weekend-person">
+                            <i class="fas fa-plus"></i> 添加
+                        </button>
+                    </div>
+                    <ul class="person-list" id="weekend-person-list">
+                        <!-- 周末人员列表会动态添加到这里 -->
+                    </ul>
+                </div>
+
+                <!-- 节假日管理 -->
+                <div class="person-section holiday">
+                    <div class="person-section-title">
+                        <i class="fas fa-exclamation-circle"></i> 当月节假日
+                    </div>
+                    <div class="person-manager holiday">
+                        <div class="person-type" style="background: #e74c3c;">节假日</div>
+                        <input type="date" id="holiday-date" placeholder="选择节假日日期">
+                        <button class="add-person-btn" id="add-holiday" style="background: #e74c3c;">
+                            <i class="fas fa-plus"></i> 添加
+                        </button>
+                    </div>
+                    <ul class="person-list" id="holiday-list">
+                        <!-- 节假日列表会动态添加到这里 -->
+                    </ul>
+                </div>
+                
+                <h2 class="panel-title"><i class="fas fa-calendar"></i> 月份选择</h2>
+                
+                <div class="month-selector">
+                    <div>
+                        <label for="year-select">年份：</label>
+                        <select id="year-select">
+                            <!-- 年份选项由JS生成 -->
+                        </select>
+                    </div>
+                    
+                    <div>
+                        <label for="month-select">月份：</label>
+                        <select id="month-select">
+                            <option value="0">一月</option>
+                            <option value="1">二月</option>
+                            <option value="2">三月</option>
+                            <option value="3">四月</option>
+                            <option value="4">五月</option>
+                            <option value="5">六月</option>
+                            <option value="6">七月</option>
+                            <option value="7">八月</option>
+                            <option value="8">九月</option>
+                            <option value="9">十月</option>
+                            <option value="10">十一月</option>
+                            <option value="11">十二月</option>
+                        </select>
+                    </div>
+                </div>
+                
+                <button class="generate-btn" id="generate-schedule">
+                    <i class="fas fa-magic"></i> 生成排班表
+                </button>
+                
+                <div class="instructions">
+                    <h3><i class="fas fa-info-circle"></i> 使用说明</h3>
+                    <ul>
+                        <li>分别设置工作日/周末每日需要的排班人数（至少1人）</li>
+                        <li>添加对应类型的排班人员及当月节假日日期</li>
+                        <li>使用删除按钮移除不需要的人员或节假日</li>
+                        <li>选择要排班的年份和月份后，点击"生成排班表"按钮</li>
+                        <li>不同日期类型使用颜色区分：工作日（浅蓝）、周末（浅黄）、节假日（浅红）</li>
+                        <li>节假日不参与排班，人员自动顺延至下一个工作日/周末</li>
+                    </ul>
+                </div>
+            </div>
+            
+            <div class="panel">
+                <div class="nav-buttons">
+                    <button class="nav-btn" id="prev-month">
+                        <i class="fas fa-chevron-left"></i> 上个月
+                    </button>
+                    <button class="nav-btn" id="next-month">
+                        下个月 <i class="fas fa-chevron-right"></i>
+                    </button>
+                </div>
+                
+                <h2 class="panel-title"><i class="fas fa-calendar-check"></i> 排班结果</h2>
+                
+                <div id="schedule-result">
+                    <div class="empty-message">
+                        <i class="fas fa-calendar-plus fa-3x" style="margin-bottom: 20px; color: #bdc3c7;"></i>
+                        <h3>尚未生成排班表</h3>
+                        <p>请设置人数、添加人员/节假日并点击"生成排班表"按钮</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            const workdayPersonInput = document.getElementById('workday-person');
+            const weekendPersonInput = document.getElementById('weekend-person');
+            const holidayDateInput = document.getElementById('holiday-date');
+            const addWorkdayPersonBtn = document.getElementById('add-workday-person');
+            const addWeekendPersonBtn = document.getElementById('add-weekend-person');
+            const addHolidayBtn = document.getElementById('add-holiday');
+            const workdayPersonList = document.getElementById('workday-person-list');
+            const weekendPersonList = document.getElementById('weekend-person-list');
+            const holidayList = document.getElementById('holiday-list');
+            const generateBtn = document.getElementById('generate-schedule');
+            const scheduleResult = document.getElementById('schedule-result');
+            const yearSelect = document.getElementById('year-select');
+            const monthSelect = document.getElementById('month-select');
+            const prevMonthBtn = document.getElementById('prev-month');
+            const nextMonthBtn = document.getElementById('next-month');
+            const workdayCountInput = document.getElementById('workday-count');
+            const weekendCountInput = document.getElementById('weekend-count');
+            
+            let workdayPersonArray = [];
+            let weekendPersonArray = [];
+            let holidayDates = [];  // 存储Date对象的节假日列表
+            let currentDate = new Date();
+            let currentYear = currentDate.getFullYear();
+            let currentMonth = currentDate.getMonth();
+            
+            // 初始化年份选择器
+            function initYearSelect() {
+                const currentYear = new Date().getFullYear();
+                for (let i = currentYear - 5; i <= currentYear + 5; i++) {
+                    const option = document.createElement('option');
+                    option.value = i;
+                    option.textContent = i + '年';
+                    if (i === currentYear) {
+                        option.selected = true;
+                    }
+                    yearSelect.appendChild(option);
+                }
+            }
+            
+            // 设置当前月份选择
+            monthSelect.value = currentMonth;
+            
+            // 添加工作日人员
+            function addWorkdayPerson() {
+                const name = workdayPersonInput.value.trim();
+                if (name && !workdayPersonArray.includes(name)) {
+                    workdayPersonArray.push(name);
+                    renderWorkdayPersonList();
+                    saveDataToLocalStorage();
+                    workdayPersonInput.value = '';
+                    workdayPersonInput.focus();
+                } else if (workdayPersonArray.includes(name)) {
+                    showError(workdayPersonInput.parentElement, '该人员已在工作日列表中！');
+                }
+            }
+            
+            // 添加周末人员
+            function addWeekendPerson() {
+                const name = weekendPersonInput.value.trim();
+                if (name && !weekendPersonArray.includes(name)) {
+                    weekendPersonArray.push(name);
+                    renderWeekendPersonList();
+                    saveDataToLocalStorage();
+                    weekendPersonInput.value = '';
+                    weekendPersonInput.focus();
+                } else if (weekendPersonArray.includes(name)) {
+                    showError(weekendPersonInput.parentElement, '该人员已在周末列表中！');
+                }
+            }
+
+            // 添加节假日
+            function addHoliday() {
+                const dateStr = holidayDateInput.value;
+                if (!dateStr) {
+                    showError(holidayDateInput.parentElement, '请选择节假日日期');
+                    return;
+                }
+                
+                const selectedDate = new Date(dateStr);
+                const year = parseInt(yearSelect.value);
+                const month = parseInt(monthSelect.value);
+                
+                if (selectedDate.getFullYear() !== year || selectedDate.getMonth() !== month) {
+                    showError(holidayDateInput.parentElement, '仅支持添加当前选择月份的节假日');
+                    return;
+                }
+
+                const normalizedDate = new Date(selectedDate.getFullYear(), selectedDate.getMonth(), selectedDate.getDate());
+                if (!holidayDates.some(d => d.getTime() === normalizedDate.getTime())) {
+                    holidayDates.push(normalizedDate);
+                    renderHolidayList();
+                    saveDataToLocalStorage();
+                    holidayDateInput.value = '';
+                } else {
+                    showError(holidayDateInput.parentElement, '该日期已作为节假日添加');
+                }
+            }
+            
+            // 显示错误信息
+            function showError(container, message) {
+                const errorDiv = document.createElement('div');
+                errorDiv.className = 'error-message';
+                errorDiv.textContent = message;
+                errorDiv.style.color = '#e74c3c';
+                errorDiv.style.margin = '5px 0';
+                
+                const existingError = container.querySelector('.error-message');
+                if (existingError) {
+                    container.removeChild(existingError);
+                }
+                container.appendChild(errorDiv);
+                
+                setTimeout(() => {
+                    errorDiv.remove();
+                }, 3000);
+            }
+            
+            // 渲染工作日人员列表
+            function renderWorkdayPersonList() {
+                workdayPersonList.innerHTML = '';
+                
+                if (workdayPersonArray.length === 0) {
+                    workdayPersonList.innerHTML = '<div class="empty-message"><i class="fas fa-building"></i><p>暂无工作日排班人员</p></div>';
+                    return;
+                }
+                
+                workdayPersonArray.forEach((person, index) => {
+                    const li = document.createElement('li');
+                    li.className = 'person-item workday';
+                    li.innerHTML = `
+                        <span>${index + 1}. ${person}</span>
+                        <button class="delete-person" data-index="${index}" data-type="workday">
+                            <i class="fas fa-times"></i>
+                        </button>
+                    `;
+                    workdayPersonList.appendChild(li);
+                });
+                
+                setupDeleteEventListeners();
+            }
+            
+            // 渲染周末人员列表
+            function renderWeekendPersonList() {
+                weekendPersonList.innerHTML = '';
+                
+                if (weekendPersonArray.length === 0) {
+                    weekendPersonList.innerHTML = '<div class="empty-message"><i class="fas fa-umbrella-beach"></i><p>暂无周末排班人员</p></div>';
+                    return;
+                }
+                
+                weekendPersonArray.forEach((person, index) => {
+                    const li = document.createElement('li');
+                    li.className = 'person-item weekend';
+                    li.innerHTML = `
+                        <span>${index + 1}. ${person}</span>
+                        <button class="delete-person" data-index="${index}" data-type="weekend">
+                            <i class="fas fa-times"></i>
+                        </button>
+                    `;
+                    weekendPersonList.appendChild(li);
+                });
+                
+                setupDeleteEventListeners();
+            }
+
+            // 渲染节假日列表
+            function renderHolidayList() {
+                holidayList.innerHTML = '';
+                
+                if (holidayDates.length === 0) {
+                    holidayList.innerHTML = '<div class="empty-message"><i class="fas fa-exclamation-circle"></i><p>暂无节假日设置</p></div>';
+                    return;
+                }
+                
+                holidayDates.forEach((date, index) => {
+                    const formattedDate = `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, '0')}-${String(date.getDate()).padStart(2, '0')}`;
+                    const li = document.createElement('li');
+                    li.className = 'person-item holiday';
+                    li.innerHTML = `
+                        <span>${index + 1}. ${formattedDate}</span>
+                        <button class="delete-person" data-index="${index}" data-type="holiday">
+                            <i class="fas fa-times"></i>
+                        </button>
+                    `;
+                    holidayList.appendChild(li);
+                });
+                
+                setupDeleteEventListeners();
+            }
+            
+            // 设置删除事件监听
+            function setupDeleteEventListeners() {
+                document.querySelectorAll('.delete-person').forEach(btn => {
+                    btn.addEventListener('click', function() {
+                        const index = parseInt(this.getAttribute('data-index'));
+                        const type = this.getAttribute('data-type');
+                        
+                        switch(type) {
+                            case 'workday':
+                                workdayPersonArray.splice(index, 1);
+                                renderWorkdayPersonList();
+                                break;
+                            case 'weekend':
+                                weekendPersonArray.splice(index, 1);
+                                renderWeekendPersonList();
+                                break;
+                            case 'holiday':
+                                holidayDates.splice(index, 1);
+                                renderHolidayList();
+                                break;
+                        }
+                        
+                        saveDataToLocalStorage();
+                    });
+                });
+            }
+            
+            // 保存数据到本地存储
+            function saveDataToLocalStorage() {
+                localStorage.setItem('workday_persons', JSON.stringify(workdayPersonArray));
+                localStorage.setItem('weekend_persons', JSON.stringify(weekendPersonArray));
+                localStorage.setItem('holidays', JSON.stringify(holidayDates.map(d => d.getTime())));
+                localStorage.setItem('workday_count', workdayCountInput.value);
+                localStorage.setItem('weekend_count', weekendCountInput.value);
+            }
+            
+            // 从本地存储加载数据
+            function loadDataFromLocalStorage() {
+                const savedWorkday = localStorage.getItem('workday_persons');
+                const savedWeekend = localStorage.getItem('weekend_persons');
+                const savedHolidays = localStorage.getItem('holidays');
+                const savedWorkdayCount = localStorage.getItem('workday_count');
+                const savedWeekendCount = localStorage.getItem('weekend_count');
+                
+                if (savedWorkday) workdayPersonArray = JSON.parse(savedWorkday);
+                if (savedWeekend) weekendPersonArray = JSON.parse(savedWeekend);
+                if (savedHolidays) holidayDates = JSON.parse(savedHolidays).map(t => new Date(t));
+                if (savedWorkdayCount) workdayCountInput.value = savedWorkdayCount;
+                if (savedWeekendCount) weekendCountInput.value = savedWeekendCount;
+                
+                renderWorkdayPersonList();
+                renderWeekendPersonList();
+                renderHolidayList();
+            }
+            
+            // 生成排班日历（关键修改部分）
+            function generateSchedule() {
+                const workdayCount = parseInt(workdayCountInput.value) || 1;
+                const weekendCount = parseInt(weekendCountInput.value) || 1;
+
+                if (workdayCount < 1 || weekendCount < 1) {
+                    scheduleResult.innerHTML = `
+                        <div class="empty-message">
+                            <i class="fas fa-exclamation-triangle fa-3x" style="margin-bottom: 20px; color: #e74c3c;"></i>
+                            <h3>人数设置错误</h3>
+                            <p>每日排班人数必须大于等于1</p>
+                        </div>
+                    `;
+                    return;
+                }
+
+                if ((workdayPersonArray.length < workdayCount && workdayCount > 0) || 
+                    (weekendPersonArray.length < weekendCount && weekendCount > 0)) {
+                    scheduleResult.innerHTML = `
+                        <div class="empty-message">
+                            <i class="fas fa-exclamation-triangle fa-3x" style="margin-bottom: 20px; color: #e74c3c;"></i>
+                            <h3>人员数量不足</h3>
+                            <p>工作日需要${workdayCount}人，但只有${workdayPersonArray.length}人；<br>
+                               周末需要${weekendCount}人，但只有${weekendPersonArray.length}人</p>
+                        </div>
+                    `;
+                    return;
+                }
+
+                const year = parseInt(yearSelect.value);
+                const month = parseInt(monthSelect.value);
+                const firstDay = new Date(year, month, 1);
+                const lastDay = new Date(year, month + 1, 0);
+                const daysInMonth = lastDay.getDate();
+                let firstDayOfWeek = firstDay.getDay();
+                if (firstDayOfWeek === 0) firstDayOfWeek = 7;  // 调整为周一为1
+                
+                const today = new Date();
+                const isCurrentMonth = year === today.getFullYear() && month === today.getMonth();
+                let dayCounter = 1;
+                let workdayPersonIndex = 0;
+                let weekendPersonIndex = 0;
+                
+                let calendarHTML = `
+                    <div class="calendar">
+                        <div class="calendar-header">${year}年${month + 1}月</div>
+                        <table>
+                            <thead class="weekdays">
+                                <tr>
+                                    <th>周一</th>
+                                    <th>周二</th>
+                                    <th>周三</th>
+                                    <th>周四</th>
+                                    <th>周五</th>
+                                    <th>周六</th>
+                                    <th>周日</th>
+                                </tr>
+                            </thead>
+                            <tbody class="calendar-body">
+                `;
+
+                for (let i = 0; i < 6; i++) {
+                    calendarHTML += '<tr>';
+                    
+                    for (let j = 1; j <= 7; j++) {  // j=1(周一)到j=7(周日)
+                        if (i === 0 && j < firstDayOfWeek) {
+                            calendarHTML += '<td></td>';
+                            continue;
+                        }
+                        if (dayCounter > daysInMonth) {
+                            calendarHTML += '<td></td>';
+                            continue;
+                        }
+
+                        const currentDate = new Date(year, month, dayCounter);
+                        const isHoliday = holidayDates.some(d => 
+                            d.getFullYear() === currentDate.getFullYear() &&
+                            d.getMonth() === currentDate.getMonth() &&
+                            d.getDate() === currentDate.getDate()
+                        );
+                        const dayOfWeek = j;  // 1=周一, 7=周日
+                        const isToday = isCurrentMonth && dayCounter === today.getDate();
+                        let cellClass = '';
+                        let persons = [];
+                        let personClass = '';
+
+                        if (isHoliday) {
+                            cellClass = 'holiday-cell';
+                        } else {
+                            if (dayOfWeek === 6 || dayOfWeek === 7) {  // 周末
+                                cellClass = 'weekend-cell';
+                                personClass = 'weekend';
+                                if (weekendPersonArray.length > 0) {
+                                    for (let k = 0; k < weekendCount; k++) {
+                                        persons.push(weekendPersonArray[(weekendPersonIndex + k) % weekendPersonArray.length]);
+                                    }
+                                    weekendPersonIndex += weekendCount;
+                                }
+                            } else {  // 工作日
+                                cellClass = 'weekday-cell';
+                                personClass = 'workday';
+                                if (workdayPersonArray.length > 0) {
+                                    for (let k = 0; k < workdayCount; k++) {
+                                        persons.push(workdayPersonArray[(workdayPersonIndex + k) % workdayPersonArray.length]);
+                                    }
+                                    workdayPersonIndex += workdayCount;
+                                }
+                            }
+                        }
+
+                        if (isToday) cellClass += ' today';
+                        
+                        calendarHTML += `
+                            <td class="${cellClass}">
+                                <div class="calendar-day ${isToday ? 'today' : ''}">${dayCounter}</div>
+                                ${isHoliday ? '<div class="person-assigned" style="color: #e74c3c;">节假日</div>' : ''}
+                                ${!isHoliday && persons.length > 0 ? 
+                                    `<div class="person-assigned ${personClass}">${persons.join('、')}</div>` : ''}
+                            </td>
+                        `;
+                        dayCounter++;
+                    }
+                    
+                    calendarHTML += '</tr>';
+                    if (dayCounter > daysInMonth) break;
+                }
+
+                const workdayTotal = workdayPersonIndex;
+                const weekendTotal = weekendPersonIndex;
+                const workdayHolidays = holidayDates.filter(d => d.getDay() < 5).length;  // 0=周日,4=周四
+                const weekendHolidays = holidayDates.filter(d => d.getDay() >= 5).length;
+                
+                calendarHTML += `
+                            </tbody>
+                        </table>
+                    </div>
+                    <div class="instructions" style="margin-top: 25px;">
+                        <p><strong>本月排班统计：</strong><br>
+                            工作日设置：每日${workdayCount}人，共安排${workdayTotal}个班次（跳过${workdayHolidays}个节假日）<br>
+                            周末设置：每日${weekendCount}人，共安排${weekendTotal}个班次（跳过${weekendHolidays}个节假日）<br>
+                            参与人员：工作日${workdayPersonArray.length}人，周末${weekendPersonArray.length}人
+                        </p>
+                    </div>
+                `;
+                
+                scheduleResult.innerHTML = calendarHTML;
+            }
+            
+            // 月份导航
+            function navigateMonth(direction) {
+                let year = parseInt(yearSelect.value);
+                let month = parseInt(monthSelect.value);
+                
+                if (direction === 'prev') {
+                    month--;
+                    if (month < 0) {
+                        month = 11;
+                        year--;
+                    }
+                } else {
+                    month++;
+                    if (month > 11) {
+                        month = 0;
+                        year++;
+                    }
+                }
+                
+                yearSelect.value = year;
+                monthSelect.value = month;
+                
+                if (workdayPersonArray.length > 0 || weekendPersonArray.length > 0) {
+                    generateSchedule();
+                }
+            }
+            
+            // 事件监听
+            addWorkdayPersonBtn.addEventListener('click', addWorkdayPerson);
+            addWeekendPersonBtn.addEventListener('click', addWeekendPerson);
+            addHolidayBtn.addEventListener('click', addHoliday);
+            
+            workdayPersonInput.addEventListener('keypress', e => e.key === 'Enter' && addWorkdayPerson());
+            weekendPersonInput.addEventListener('keypress', e => e.key === 'Enter' && addWeekendPerson());
+            
+            generateBtn.addEventListener('click', generateSchedule);
+            prevMonthBtn.addEventListener('click', () => navigateMonth('prev'));
+            nextMonthBtn.addEventListener('click', () => navigateMonth('next'));
+            
+            workdayCountInput.addEventListener('input', saveDataToLocalStorage);
+            weekendCountInput.addEventListener('input', saveDataToLocalStorage);
+            
+            // 初始渲染
+            initYearSelect();
+            loadDataFromLocalStorage();
+        });
+    </script>
+
+<div style="position:fixed;bottom:20px;right:20px;padding:10px 15px;background:linear-gradient(135deg, #f5f7fa 0%, #e4e8eb 100%);border-radius:8px;font-size:12px;color:#555;box-shadow:0 4px 6px rgba(0,0,0,0.1);border:1px solid rgba(0,0,0,0.1);transition:all 0.3s ease;">
+    <a href="/" style="color:#555;text-decoration:none;font-weight:500;">用AI制作你的HTML工具</a> 
+    <span style="color:#ccc;margin:0 5px;">|</span> 
+    <a href="http://istester.com/page/idoxu666.html" style="color:#555;text-decoration:none;font-weight:500;">技术支持·IDO老徐</a>
+</div>
+</body>
+</html>
+    
