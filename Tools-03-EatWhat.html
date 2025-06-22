@@ -1,0 +1,813 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>外卖随机选择器 - 今天吃啥？</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+        
+        body {
+            background: linear-gradient(135deg, #ff9a9e 0%, #fad0c4 100%);
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding: 20px;
+            overflow-x: hidden;
+        }
+        
+        .container {
+            width: 100%;
+            max-width: 1000px;
+            background-color: rgba(255, 255, 255, 0.95);
+            border-radius: 20px;
+            box-shadow: 0 15px 30px rgba(0, 0, 0, 0.15);
+            overflow: hidden;
+            padding: 30px;
+            position: relative;
+            overflow: hidden;
+        }
+        
+        /* 装饰元素 */
+        .decoration {
+            position: absolute;
+            font-size: 8rem;
+            opacity: 0.1;
+            color: #ff6b6b;
+            z-index: 0;
+        }
+        
+        .decoration:nth-child(1) {
+            top: 20px;
+            left: 20px;
+            transform: rotate(15deg);
+        }
+        
+        .decoration:nth-child(2) {
+            bottom: 20px;
+            right: 20px;
+            transform: rotate(-25deg);
+        }
+        
+        header {
+            text-align: center;
+            margin-bottom: 30px;
+            position: relative;
+            z-index: 1;
+        }
+        
+        h1 {
+            color: #ff6b6b;
+            font-size: 2.8rem;
+            margin-bottom: 15px;
+            position: relative;
+            display: inline-block;
+        }
+        
+        h1:after {
+            content: "";
+            position: absolute;
+            bottom: -10px;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 100px;
+            height: 4px;
+            background: linear-gradient(90deg, #ff9a9e, #fad0c4);
+            border-radius: 2px;
+        }
+        
+        .subtitle {
+            color: #777;
+            font-size: 1.2rem;
+            margin-top: 20px;
+        }
+        
+        .main-content {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 30px;
+            position: relative;
+            z-index: 1;
+        }
+        
+        .selection-section, .history-section {
+            flex: 1;
+            min-width: 300px;
+        }
+        
+        .section-title {
+            color: #ff6b6b;
+            font-size: 1.5rem;
+            margin-bottom: 20px;
+            padding-bottom: 10px;
+            border-bottom: 2px dashed #ffd3d3;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        
+        .input-group {
+            display: flex;
+            margin-bottom: 20px;
+        }
+        
+        input {
+            flex: 1;
+            padding: 15px;
+            border: 2px solid #ffd3d3;
+            border-radius: 50px 0 0 50px;
+            font-size: 1rem;
+            outline: none;
+            transition: border-color 0.3s;
+        }
+        
+        input:focus {
+            border-color: #ff6b6b;
+        }
+        
+        button {
+            background: linear-gradient(90deg, #ff6b6b, #ff8e8e);
+            color: white;
+            border: none;
+            padding: 15px 20px;
+            font-size: 1rem;
+            cursor: pointer;
+            transition: all 0.3s;
+            border-radius: 0 50px 50px 0;
+            font-weight: 600;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+            box-shadow: 0 5px 15px rgba(255, 107, 107, 0.4);
+        }
+        
+        button:hover {
+            background: linear-gradient(90deg, #ff5a5a, #ff7a7a);
+            transform: translateY(-3px);
+            box-shadow: 0 8px 20px rgba(255, 107, 107, 0.6);
+        }
+        
+        .food-options {
+            background: #fff9f9;
+            border-radius: 15px;
+            padding: 20px;
+            margin-bottom: 20px;
+            max-height: 250px;
+            overflow-y: auto;
+            border: 2px dashed #ffd3d3;
+            box-shadow: inset 0 0 10px rgba(0, 0, 0, 0.05);
+        }
+        
+        .food-options ul {
+            list-style: none;
+            display: flex;
+            flex-wrap: wrap;
+            gap: 12px;
+        }
+        
+        .food-options li {
+            background: white;
+            color: #555;
+            padding: 12px 20px;
+            border-radius: 50px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            font-size: 1rem;
+            font-weight: 500;
+            box-shadow: 0 3px 5px rgba(0, 0, 0, 0.05);
+            transition: all 0.3s;
+        }
+        
+        .food-options li:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 5px 10px rgba(0, 0, 0, 0.1);
+        }
+        
+        .food-options li i {
+            cursor: pointer;
+            opacity: 0.7;
+            transition: all 0.2s;
+        }
+        
+        .food-options li i:hover {
+            opacity: 1;
+            color: #ff6b6b;
+            transform: scale(1.2);
+        }
+        
+        .result-area {
+            background: linear-gradient(135deg, #a1c4fd 0%, #c2e9fb 100%);
+            border-radius: 15px;
+            padding: 30px;
+            text-align: center;
+            margin: 30px 0;
+            min-height: 220px;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            position: relative;
+            overflow: hidden;
+            box-shadow: 0 10px 20px rgba(0, 0, 0, 0.1);
+        }
+        
+        .result-area:before {
+            content: "";
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 10px;
+            background: linear-gradient(90deg, #ff6b6b, #4facfe);
+        }
+        
+        .food-icon {
+            font-size: 4rem;
+            margin-bottom: 20px;
+            color: #2f3542;
+            z-index: 1;
+        }
+        
+        .result-text {
+            font-size: 2.5rem;
+            color: #2f3542;
+            font-weight: 700;
+            margin: 10px 0;
+            text-shadow: 1px 1px 3px rgba(0,0,0,0.1);
+            min-height: 70px;
+            z-index: 1;
+            padding: 0 20px;
+        }
+        
+        .button-group {
+            display: flex;
+            justify-content: center;
+            gap: 20px;
+            width: 100%;
+            max-width: 600px;
+            margin-top: 10px;
+        }
+        
+        .select-btn, .reset-btn {
+            background: linear-gradient(90deg, #ff6b6b, #ff8e8e);
+            border-radius: 50px;
+            padding: 15px 30px;
+            font-size: 1.2rem;
+            font-weight: bold;
+            display: block;
+            width: 100%;
+            max-width: 300px;
+            box-shadow: 0 5px 15px rgba(255, 107, 107, 0.4);
+            border: none;
+            color: white;
+            cursor: pointer;
+            transition: all 0.3s;
+            z-index: 1;
+        }
+        
+        .select-btn:hover {
+            background: linear-gradient(90deg, #ff5a5a, #ff7a7a);
+            transform: scale(1.05);
+            box-shadow: 0 8px 20px rgba(255, 107, 107, 0.6);
+        }
+        
+        .reset-btn {
+            background: linear-gradient(90deg, #6a89cc, #82ccdd);
+        }
+        
+        .reset-btn:hover {
+            background: linear-gradient(90deg, #5a7ac4, #72bcd4);
+            transform: scale(1.05);
+            box-shadow: 0 8px 20px rgba(106, 137, 204, 0.6);
+        }
+        
+        .history-list {
+            background: #fff9f9;
+            border-radius: 15px;
+            padding: 20px;
+            max-height: 300px;
+            overflow-y: auto;
+            border: 2px dashed #ffd3d3;
+            box-shadow: inset 0 0 10px rgba(0, 0, 0, 0.05);
+        }
+        
+        .history-list ul {
+            list-style: none;
+        }
+        
+        .history-list li {
+            padding: 15px;
+            border-bottom: 1px solid #ffd3d3;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            transition: all 0.3s;
+        }
+        
+        .history-list li:last-child {
+            border-bottom: none;
+        }
+        
+        .history-list li:hover {
+            background-color: #fff3f3;
+            transform: translateX(5px);
+        }
+        
+        .history-list .food-info {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+        
+        .history-list .food-info i {
+            font-size: 1.5rem;
+            color: #ff6b6b;
+        }
+        
+        .history-list .food-name {
+            font-weight: 600;
+            color: #555;
+        }
+        
+        .history-list .time {
+            color: #999;
+            font-size: 0.9rem;
+            font-style: italic;
+        }
+        
+        .history-list .delete-btn {
+            background: #ff6b6b;
+            color: white;
+            border: none;
+            border-radius: 50%;
+            width: 32px;
+            height: 32px;
+            cursor: pointer;
+            transition: all 0.2s;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        
+        .history-list .delete-btn:hover {
+            background: #ff5252;
+            transform: scale(1.1);
+        }
+        
+        .history-controls {
+            display: flex;
+            justify-content: space-between;
+            margin-top: 20px;
+            gap: 15px;
+        }
+        
+        .history-controls button {
+            border-radius: 50px;
+            flex: 1;
+            padding: 12px;
+        }
+        
+        .clear-btn {
+            background: linear-gradient(90deg, #6c757d, #868e96);
+        }
+        
+        .clear-btn:hover {
+            background: linear-gradient(90deg, #5a6268, #727b84);
+        }
+        
+        /* 动画效果 */
+        .pulse {
+            animation: pulse 1.5s infinite;
+        }
+        
+        @keyframes pulse {
+            0% { transform: scale(1); }
+            50% { transform: scale(1.1); }
+            100% { transform: scale(1); }
+        }
+        
+        .bounce {
+            animation: bounce 0.5s ease;
+        }
+        
+        @keyframes bounce {
+            0%, 100% { transform: translateY(0); }
+            50% { transform: translateY(-20px); }
+        }
+        
+        .spin {
+            animation: spin 1s linear infinite;
+        }
+        
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+        
+        .fade-in {
+            animation: fadeIn 0.5s ease-in;
+        }
+        
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        
+        /* 撒花效果 */
+        .confetti {
+            position: fixed;
+            top: -50px;
+            z-index: 9999;
+            pointer-events: none;
+            opacity: 0;
+            font-size: 24px;
+        }
+        
+        .confetti.fall {
+            animation: confettiFall 2s ease-in forwards;
+        }
+        
+        @keyframes confettiFall {
+            0% {
+                transform: translateY(0) rotate(0deg);
+                opacity: 1;
+            }
+            100% {
+                transform: translateY(110vh) rotate(720deg);
+                opacity: 0;
+            }
+        }
+        
+        @media (max-width: 768px) {
+            .main-content {
+                flex-direction: column;
+            }
+            
+            h1 {
+                font-size: 2.2rem;
+            }
+            
+            .result-text {
+                font-size: 2rem;
+            }
+            
+            .decoration {
+                font-size: 5rem;
+            }
+            
+            .button-group {
+                flex-direction: column;
+                align-items: center;
+                gap: 15px;
+            }
+        }
+        
+        .empty-history {
+            text-align: center;
+            padding: 30px;
+            color: #aaa;
+        }
+        
+        .empty-history i {
+            font-size: 3rem;
+            margin-bottom: 15px;
+            color: #ffd3d3;
+        }
+        
+        .empty-history p {
+            font-size: 1.1rem;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="decoration"><i class="fas fa-utensils"></i></div>
+        <div class="decoration"><i class="fas fa-apple-alt"></i></div>
+        
+        <header>
+            <h1><i class="fas fa-utensils"></i> 外卖随机选择器</h1>
+            <p class="subtitle">不再为"今天吃什么"而烦恼！</p>
+        </header>
+        
+        <div class="main-content">
+            <div class="selection-section">
+                <h2 class="section-title"><i class="fas fa-list"></i> 可选外卖</h2>
+                
+                <div class="input-group">
+                    <input type="text" id="foodInput" placeholder="添加外卖选项，例如：拉面">
+                    <button id="addFoodBtn"><i class="fas fa-plus"></i> 添加</button>
+                </div>
+                
+                <div class="food-options">
+                    <ul id="foodList">
+                        <li><i class="fas fa-bowl-food"></i> 米饭套餐 <i class="fas fa-times remove-food"></i></li>
+                        <li><i class="fas fa-hamburger"></i> 牛肉面 <i class="fas fa-times remove-food"></i></li>
+                        <li><i class="fas fa-pizza-slice"></i> 饺子 <i class="fas fa-times remove-food"></i></li>
+                        <li><i class="fas fa-carrot"></i> 沙拉 <i class="fas fa-times remove-food"></i></li>
+                        <li><i class="fas fa-drumstick-bite"></i> 汉堡 <i class="fas fa-times remove-food"></i></li>
+                    </ul>
+                </div>
+                
+                <div class="result-area">
+                    <div class="food-icon">
+                        <i class="fas fa-question"></i>
+                    </div>
+                    <div class="result-text">点击下方按钮开始选择</div>
+                </div>
+                
+                <div class="button-group">
+                    <button class="select-btn" id="selectBtn"><i class="fas fa-random"></i> 随机选择</button>
+                    <button class="reset-btn" id="resetBtn"><i class="fas fa-redo"></i> 重置选择</button>
+                </div>
+            </div>
+            
+            <div class="history-section">
+                <h2 class="section-title"><i class="fas fa-history"></i> 最近选择记录</h2>
+                
+                <div class="history-list">
+                    <ul id="historyList">
+                        <!-- 历史记录将通过JavaScript动态添加 -->
+                    </ul>
+                </div>
+                
+                <div class="history-controls">
+                    <button class="clear-btn" id="clearHistoryBtn"><i class="fas fa-trash-alt"></i> 清除所有记录</button>
+                    <button id="deleteRecentBtn"><i class="fas fa-backspace"></i> 删除最近记录</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            // 初始数据
+            let foodOptions = ['米饭套餐', '牛肉面', '饺子', '沙拉', '汉堡'];
+            let history = [];
+            
+            const foodInput = document.getElementById('foodInput');
+            const addFoodBtn = document.getElementById('addFoodBtn');
+            const foodList = document.getElementById('foodList');
+            const selectBtn = document.getElementById('selectBtn');
+            const resetBtn = document.getElementById('resetBtn');
+            const resultText = document.querySelector('.result-text');
+            const foodIcon = document.querySelector('.food-icon i');
+            const historyList = document.getElementById('historyList');
+            const deleteRecentBtn = document.getElementById('deleteRecentBtn');
+            const clearHistoryBtn = document.getElementById('clearHistoryBtn');
+            
+            // 食物图标映射
+            const foodIcons = {
+                '米饭': 'fa-bowl-food',
+                '套餐': 'fa-bowl-food',
+                '牛肉面': 'fa-hamburger',
+                '饺子': 'fa-pizza-slice',
+                '沙拉': 'fa-carrot',
+                '汉堡': 'fa-drumstick-bite',
+                '拉面': 'fa-utensils',
+                '面条': 'fa-utensils',
+                '炒饭': 'fa-utensils',
+                '盖饭': 'fa-utensils',
+                '寿司': 'fa-fish',
+                '披萨': 'fa-pizza-slice',
+                '炸鸡': 'fa-drumstick-bite',
+                '三明治': 'fa-bread-slice'
+            };
+            
+            // 获取食物图标类
+            function getFoodIcon(foodName) {
+                for (const [key, icon] of Object.entries(foodIcons)) {
+                    if (foodName.includes(key)) {
+                        return icon;
+                    }
+                }
+                return 'fa-utensils'; // 默认图标
+            }
+            
+            // 初始化选项列表
+            function renderFoodList() {
+                foodList.innerHTML = '';
+                foodOptions.forEach((food, index) => {
+                    const iconClass = getFoodIcon(food);
+                    const li = document.createElement('li');
+                    li.innerHTML = `<i class="fas ${iconClass}"></i> ${food} <i class="fas fa-times remove-food" data-index="${index}"></i>`;
+                    foodList.appendChild(li);
+                });
+                
+                // 添加删除事件监听
+                document.querySelectorAll('.remove-food').forEach(icon => {
+                    icon.addEventListener('click', function() {
+                        const index = this.getAttribute('data-index');
+                        foodOptions.splice(index, 1);
+                        renderFoodList();
+                    });
+                });
+            }
+            
+            // 渲染历史记录
+            function renderHistory() {
+                historyList.innerHTML = '';
+                
+                if (history.length === 0) {
+                    historyList.innerHTML = `
+                        <div class="empty-history">
+                            <i class="fas fa-history"></i>
+                            <p>暂无选择记录</p>
+                        </div>
+                    `;
+                    return;
+                }
+                
+                history.forEach((record, index) => {
+                    const iconClass = getFoodIcon(record.food);
+                    const li = document.createElement('li');
+                    li.classList.add('fade-in');
+                    li.innerHTML = `
+                        <div class="food-info">
+                            <i class="fas ${iconClass}"></i>
+                            <div>
+                                <div class="food-name">${record.food}</div>
+                                <div class="time">${record.time}</div>
+                            </div>
+                        </div>
+                        <button class="delete-btn" data-index="${index}"><i class="fas fa-times"></i></button>
+                    `;
+                    historyList.appendChild(li);
+                });
+                
+                // 添加删除事件监听
+                document.querySelectorAll('.delete-btn').forEach(btn => {
+                    btn.addEventListener('click', function() {
+                        const index = this.getAttribute('data-index');
+                        history.splice(index, 1);
+                        renderHistory();
+                    });
+                });
+            }
+            
+            // 添加新食物选项
+            addFoodBtn.addEventListener('click', function() {
+                const newFood = foodInput.value.trim();
+                if (newFood && !foodOptions.includes(newFood)) {
+                    foodOptions.push(newFood);
+                    renderFoodList();
+                    foodInput.value = '';
+                    foodInput.focus();
+                } else if (foodOptions.includes(newFood)) {
+                    alert('该选项已存在！');
+                }
+            });
+            
+            // 按回车添加食物
+            foodInput.addEventListener('keypress', function(e) {
+                if (e.key === 'Enter') {
+                    addFoodBtn.click();
+                }
+            });
+            
+            // 随机选择外卖
+            selectBtn.addEventListener('click', function() {
+                if (foodOptions.length === 0) {
+                    resultText.textContent = '请先添加外卖选项！';
+                    resultText.style.color = "#ff6b6b";
+                    return;
+                }
+                
+                // 添加动画效果
+                selectBtn.innerHTML = '<i class="fas fa-random spin"></i> 选择中...';
+                selectBtn.disabled = true;
+                resetBtn.disabled = true;
+                
+                foodIcon.classList.remove('bounce');
+                resultText.classList.remove('bounce');
+                void foodIcon.offsetWidth; // 触发重排
+                void resultText.offsetWidth;
+                
+                foodIcon.classList.add('pulse');
+                resultText.style.color = "#2f3542";
+                
+                // 模拟随机选择过程
+                let count = 0;
+                const interval = setInterval(() => {
+                    const randomIndex = Math.floor(Math.random() * foodOptions.length);
+                    resultText.textContent = foodOptions[randomIndex];
+                    count++;
+                    
+                    if (count > 15) {
+                        clearInterval(interval);
+                        foodIcon.classList.remove('pulse');
+                        
+                        // 显示最终结果
+                        const selectedFood = foodOptions[Math.floor(Math.random() * foodOptions.length)];
+                        resultText.textContent = selectedFood;
+                        resultText.classList.add('bounce');
+                        foodIcon.classList.add('bounce');
+                        
+                        // 更新食物图标
+                        const iconClass = getFoodIcon(selectedFood);
+                        foodIcon.className = `fas ${iconClass}`;
+                        
+                        // 重置按钮状态
+                        selectBtn.innerHTML = '<i class="fas fa-random"></i> 随机选择外卖';
+                        selectBtn.disabled = false;
+                        resetBtn.disabled = false;
+                        
+                        // 添加到历史记录
+                        const now = new Date();
+                        const timeString = `${now.getHours().toString().padStart(2, '0')}:${now.getMinutes().toString().padStart(2, '0')}`;
+                        
+                        history.unshift({
+                            food: selectedFood,
+                            time: `今天 ${timeString}`
+                        });
+                        
+                        // 最多保留10条记录
+                        if (history.length > 10) {
+                            history.pop();
+                        }
+                        
+                        renderHistory();
+                        
+                        // 触发撒花效果
+                        createConfetti();
+                    }
+                }, 100);
+            });
+            
+            // 重置选择结果
+            resetBtn.addEventListener('click', function() {
+                resultText.textContent = '点击下方按钮开始选择';
+                resultText.style.color = "#2f3542";
+                foodIcon.className = 'fas fa-question';
+                
+                // 移除动画效果
+                resultText.classList.remove('bounce');
+                foodIcon.classList.remove('bounce');
+                
+                // 添加重置动画
+                resultText.classList.add('fade-in');
+                setTimeout(() => {
+                    resultText.classList.remove('fade-in');
+                }, 500);
+            });
+            
+            // 创建撒花效果
+            function createConfetti() {
+                const confettiEmojis = ['🍕', '🍔', '🍟', '🌭', '🍗', '🥗', '🍝', '🥟', '🍣', '🍦', '🥪', '🍜', '🍤', '🍩'];
+                const container = document.querySelector('.result-area');
+                
+                for (let i = 0; i < 30; i++) {
+                    const confetti = document.createElement('div');
+                    confetti.className = 'confetti';
+                    confetti.textContent = confettiEmojis[Math.floor(Math.random() * confettiEmojis.length)];
+                    confetti.style.left = `${Math.random() * 100}%`;
+                    confetti.style.fontSize = `${Math.random() * 20 + 15}px`;
+                    confetti.style.animationDelay = `${Math.random() * 1}s`;
+                    
+                    document.body.appendChild(confetti);
+                    
+                    // 添加下落动画
+                    setTimeout(() => {
+                        confetti.classList.add('fall');
+                    }, 10);
+                    
+                    // 移除元素
+                    setTimeout(() => {
+                        confetti.remove();
+                    }, 2000);
+                }
+            }
+            
+            // 删除最近记录
+            deleteRecentBtn.addEventListener('click', function() {
+                if (history.length > 0) {
+                    history.shift();
+                    renderHistory();
+                }
+            });
+            
+            // 清除所有记录
+            clearHistoryBtn.addEventListener('click', function() {
+                if (history.length > 0) {
+                    if (confirm('确定要清除所有历史记录吗？')) {
+                        history = [];
+                        renderHistory();
+                    }
+                }
+            });
+            
+            // 初始化页面
+            renderFoodList();
+            renderHistory();
+        });
+    </script>
+</body>
+</html>
