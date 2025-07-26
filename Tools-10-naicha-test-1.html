@@ -1,0 +1,720 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>奶茶热量计算器 - 小红书风格</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+SC:wght@400;500;700&display=swap" rel="stylesheet">
+    <script defer>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        pink: {
+                            light: '#FFB6C1',
+                            50: '#fff1f2',
+                            100: '#ffe4e6',
+                            200: '#fecdd3',
+                            300: '#fda4af',
+                            400: '#fb7185',
+                            500: '#f43f5e',
+                            600: '#e11d48',
+                            xhs: '#FF2D55'
+                        },
+                        primary: '#FF2D55',
+                        secondary: '#FFD700',
+                        accent: '#FFA07A',
+                        neutral: '#F5F5DC',
+                        dark: '#3A2618',
+                        card: '#FFF5F7'
+                    },
+                    fontFamily: {
+                        sans: ['Noto Sans SC', 'system-ui', 'sans-serif'],
+                    },
+                }
+            }
+        }
+    </script>
+    <style type="text/tailwindcss">
+        @layer utilities {
+            .content-auto {
+                content-visibility: auto;
+            }
+            .option-hover {
+                @apply transition-all duration-300 hover:scale-105 hover:shadow-lg;
+            }
+            .btn-effect {
+                @apply transition-all duration-300 hover:shadow-md hover:-translate-y-1 active:translate-y-0;
+            }
+            .card-gradient {
+                @apply bg-gradient-to-br from-card to-white;
+            }
+            .xhs-gradient {
+                background: linear-gradient(135deg, #FF9AA2 0%, #FFB7B2 100%);
+            }
+            .xhs-shadow {
+                box-shadow: 0 8px 32px rgba(255, 45, 85, 0.15);
+            }
+            .selected {
+                @apply ring-2 ring-pink-400 bg-pink-50 border-pink-300;
+            }
+            .animate-fade-in {
+                animation: fadeIn 0.5s ease-in;
+            }
+            @keyframes fadeIn {
+                from { opacity: 0; transform: translateY(10px); }
+                to { opacity: 1; transform: translateY(0); }
+            }
+            .heart-pattern {
+                background-image: url("data:image/svg+xml,%3Csvg width='40' height='40' viewBox='0 0 40 40' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='%23ff2d55' fill-opacity='0.05' fill-rule='evenodd'%3E%3Cpath d='M0 40L40 0H20L0 20M40 40V20L20 40'/%3E%3C/g%3E%3C/svg%3E");
+            }
+        }
+    </style>
+</head>
+<body class="bg-gradient-to-br from-pink-50 to-pink-100 min-h-screen font-sans text-gray-800" role="application" aria-label="奶茶热量计算器">
+    <div class="container mx-auto px-4 py-8 max-w-5xl" itemscope itemtype="http://schema.org/WebApplication">
+        <!-- 顶部导航栏 -->
+        <header class="flex justify-between items-center mb-8">
+            <div class="flex items-center">
+                <div class="w-10 h-10 rounded-full bg-pink-500 flex items-center justify-center mr-3">
+                    <i class="fa-solid fa-mug-hot text-white text-xl"></i>
+                </div>
+                <h1 class="text-2xl md:text-3xl font-bold text-pink-600 tracking-tight">
+                    奶茶热量计算器
+                </h1>
+            </div>
+            <div class="flex items-center space-x-3">
+                <button class="bg-pink-500 text-white rounded-full w-10 h-10 flex items-center justify-center">
+                    <i class="fa-solid fa-share-nodes"></i>
+                </button>
+                <button class="bg-white border border-pink-300 rounded-full w-10 h-10 flex items-center justify-center">
+                    <i class="fa-solid fa-bookmark text-pink-500"></i>
+                </button>
+            </div>
+        </header>
+
+        <!-- 介绍部分 -->
+        <div class="text-center mb-10">
+            <div class="inline-block bg-white rounded-full px-4 py-2 shadow-sm mb-3">
+                <span class="text-pink-500 font-medium">健康生活 · 从了解开始</span>
+            </div>
+            <h2 class="text-xl md:text-2xl font-bold text-gray-800 mb-3">
+                选择您的奶茶偏好，计算总热量
+            </h2>
+            <p class="text-gray-600 max-w-2xl mx-auto">
+                精确计算您最爱的奶茶热量，了解营养成分，获取健康建议
+            </p>
+        </div>
+
+        <!-- 主内容区 -->
+        <main class="grid grid-cols-1 lg:grid-cols-2 gap-8">
+            <!-- 左侧选择区 -->
+            <div class="space-y-8">
+                <!-- 奶茶类型选择 -->
+                <div class="bg-white rounded-2xl xhs-shadow p-6 card-gradient relative overflow-hidden">
+                    <div class="absolute top-0 right-0 w-24 h-24 bg-pink-200 rounded-bl-full opacity-20"></div>
+                    <div class="relative z-10">
+                        <div class="flex items-center mb-5">
+                            <div class="w-8 h-8 rounded-full bg-pink-100 flex items-center justify-center mr-2">
+                                <i class="fa-solid fa-mug-hot text-pink-500"></i>
+                            </div>
+                            <h2 class="text-xl font-bold text-pink-600">选择奶茶类型</h2>
+                        </div>
+                        <div class="options grid grid-cols-2 sm:grid-cols-3 gap-4">
+                            <div class="option option-hover bg-white rounded-2xl p-4 shadow border border-pink-100 cursor-pointer flex flex-col items-center justify-center transition-all duration-300 hover:border-pink-300" 
+                                 data-type="milk" data-calories="250" role="button" tabindex="0" aria-label="珍珠奶茶选项">
+                                <div class="w-14 h-14 rounded-full bg-pink-100 flex items-center justify-center mb-3">
+        <i class="fa-solid fa-mug-hot text-2xl text-pink-500"></i>
+    </div>
+                                <h3 class="font-medium text-gray-800">珍珠奶茶</h3>
+                            </div>
+                            <div class="option option-hover bg-white rounded-2xl p-4 shadow border border-pink-100 cursor-pointer flex flex-col items-center justify-center" data-type="fruit" data-calories="180">
+                                <div class="w-14 h-14 rounded-full bg-pink-100 flex items-center justify-center mb-3">
+                                    <i class="fas fa-apple-alt text-2xl text-pink-500"></i>
+                                </div>
+                                <h3 class="font-medium text-gray-800">水果茶</h3>
+                            </div>
+                            <div class="option option-hover bg-white rounded-2xl p-4 shadow border border-pink-100 cursor-pointer flex flex-col items-center justify-center" data-type="cheese" data-calories="320">
+                                <div class="w-14 h-14 rounded-full bg-pink-100 flex items-center justify-center mb-3">
+                                    <i class="fas fa-cheese text-2xl text-pink-500"></i>
+                                </div>
+                                <h3 class="font-medium text-gray-800">芝士奶盖</h3>
+                            </div>
+                            <div class="option option-hover bg-white rounded-2xl p-4 shadow border border-pink-100 cursor-pointer flex flex-col items-center justify-center" data-type="matcha" data-calories="220">
+                                <div class="w-14 h-14 rounded-full bg-pink-100 flex items-center justify-center mb-3">
+                                    <i class="fas fa-leaf text-2xl text-pink-500"></i>
+                                </div>
+                                <h3 class="font-medium text-gray-800">抹茶拿铁</h3>
+                            </div>
+                            <div class="option option-hover bg-white rounded-2xl p-4 shadow border border-pink-100 cursor-pointer flex flex-col items-center justify-center" data-type="chocolate" data-calories="300">
+            <div class="w-14 h-14 rounded-full bg-pink-100 flex items-center justify-center mb-3">
+                <i class="fas fa-cookie text-2xl text-pink-500"></i>
+            </div>
+            <h3 class="font-medium text-gray-800">巧克力奶茶</h3>
+        </div>
+        <div class="option option-hover bg-white rounded-2xl p-4 shadow border border-pink-100 cursor-pointer flex flex-col items-center justify-center" data-type="yangzhi" data-calories="300">
+            <div class="w-14 h-14 rounded-full bg-pink-100 flex items-center justify-center mb-3">
+                <i class="fas fa-lemon text-2xl text-pink-500"></i>
+        </div>
+        <h3 class="font-medium text-gray-800">杨枝甘露</h3>
+        </div>
+    </div>
+                    </div>
+                </div>
+
+                <!-- 糖分选择 -->
+                <div class="bg-white rounded-2xl xhs-shadow p-6 card-gradient relative overflow-hidden">
+                    <div class="absolute bottom-0 left-0 w-24 h-24 bg-pink-200 rounded-tr-full opacity-20"></div>
+                    <div class="relative z-10">
+                        <div class="flex items-center mb-5">
+                            <div class="w-8 h-8 rounded-full bg-pink-100 flex items-center justify-center mr-2">
+                                <i class="fa-solid fa-candy-cane text-pink-500"></i>
+                            </div>
+                            <h2 class="text-xl font-bold text-pink-600">选择糖分</h2>
+                        </div>
+                        
+                        <div class="sugars grid grid-cols-2 sm:grid-cols-4 gap-3 md:gap-4">
+                            <div class="sugar option-hover bg-white rounded-2xl p-4 shadow border border-pink-100 cursor-pointer flex flex-col items-center justify-center transition-all duration-300 hover:border-pink-300" data-sugar="full" data-calories="100">
+                                <div class="w-16 h-16 rounded-full bg-pink-100 flex items-center justify-center mb-3">
+            <i class="fas fa-2x text-pink-500">0%</i>
+        </div>
+                                <h3 class="font-medium text-gray-800">无糖</h3>
+                            </div>
+                            <div class="sugar option-hover bg-white rounded-2xl p-4 shadow border border-pink-100 cursor-pointer flex flex-col items-center justify-center" data-sugar="three" data-calories="70">
+                                <div class="w-16 h-16 rounded-full bg-pink-100 flex items-center justify-center mb-3">
+            <i class="fas fa-2x text-pink-500">30%</i>
+        </div>
+                                <h3 class="font-medium text-gray-800">三分糖</h3>
+                            </div>
+                            <div class="sugar option-hover bg-white rounded-2xl p-4 shadow border border-pink-100 cursor-pointer flex flex-col items-center justify-center" data-sugar="half" data-calories="50">
+                                <div class="w-16 h-16 rounded-full bg-pink-100 flex items-center justify-center mb-3">
+            <i class="fas fa-2x text-pink-500">50%</i>
+        </div>
+                                <h3 class="font-medium text-gray-800">半糖</h3>
+                            </div>
+                            <div class="sugar option-hover bg-white rounded-2xl p-4 shadow border border-pink-100 cursor-pointer flex flex-col items-center justify-center" data-sugar="seven" data-calories="80">
+                                <div class="w-16 h-16 rounded-full bg-pink-100 flex items-center justify-center mb-3">
+            <i class="fas fa-2x text-pink-500">70%</i>
+        </div>
+                                <h3 class="font-medium text-gray-800">七分糖</h3>
+                            </div>
+                            <div class="sugar option-hover bg-white rounded-2xl p-4 shadow border border-pink-100 cursor-pointer flex flex-col items-center justify-center" data-sugar="full" data-calories="100">
+                                <div class="w-16 h-16 rounded-full bg-pink-100 flex items-center justify-center mb-3">
+            <i class="fas fa-2x text-pink-500">100%</i>
+        </div>
+                                <h3 class="font-medium text-gray-800">全糖</h3>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- 加料选择 -->
+                <div class="bg-white rounded-2xl xhs-shadow p-6 card-gradient relative overflow-hidden">
+                    <div class="absolute top-4 left-4 w-16 h-16 bg-pink-200 rounded-full opacity-20"></div>
+                    <div class="relative z-10">
+                        <div class="flex items-center mb-5">
+                            <div class="w-8 h-8 rounded-full bg-pink-100 flex items-center justify-center mr-2">
+                                <i class="fa-solid fa-plus text-pink-500"></i>
+                            </div>
+                            <h2 class="text-xl font-bold text-pink-600">选择加料</h2>
+                            <span class="text-xs text-gray-500 ml-2">(可多选)</span>
+                        </div>
+                        <div class="toppings grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-3 md:gap-4">
+                            <div class="topping option-hover bg-white rounded-2xl p-4 shadow border border-pink-100 cursor-pointer flex flex-col items-center justify-center transition-all duration-300 hover:border-pink-300" data-topping="pearl" data-calories="80">
+                                <div class="w-12 h-12 rounded-full bg-pink-100 flex items-center justify-center mb-2">
+                                    <i class="fas fa-circle text-xl text-pink-500"></i>
+                                </div>
+                                <span class="font-medium text-gray-800 text-sm">珍珠</span>
+                            </div>
+                            <div class="topping option-hover bg-white rounded-2xl p-4 shadow border border-pink-100 cursor-pointer flex flex-col items-center justify-center" data-topping="pudding" data-calories="60">
+                                <div class="w-12 h-12 rounded-full bg-pink-100 flex items-center justify-center mb-2">
+                                    <i class="fas fa-square text-xl text-pink-500"></i>
+                                </div>
+                                <span class="font-medium text-gray-800 text-sm">布丁</span>
+                            </div>
+                            <div class="topping option-hover bg-white rounded-2xl p-4 shadow border border-pink-100 cursor-pointer flex flex-col items-center justify-center" data-topping="coconut" data-calories="40">
+                                <div class="w-12 h-12 rounded-full bg-pink-100 flex items-center justify-center mb-2">
+                                    <i class="fas fa-cloud text-xl text-pink-500"></i>
+                                </div>
+                                <span class="font-medium text-gray-800 text-sm">椰果</span>
+                            </div>
+                            <div class="topping option-hover bg-white rounded-2xl p-4 shadow border border-pink-100 cursor-pointer flex flex-col items-center justify-center" data-topping="redbean" data-calories="50">
+                                <div class="w-12 h-12 rounded-full bg-pink-100 flex items-center justify-center mb-2">
+                                    <i class="fas fa-heart text-xl text-pink-500"></i>
+                                </div>
+                                <span class="font-medium text-gray-800 text-sm">红豆</span>
+                            </div>
+                            <div class="topping option-hover bg-white rounded-2xl p-4 shadow border border-pink-100 cursor-pointer flex flex-col items-center justify-center" data-topping="grassjelly" data-calories="30">
+                                <div class="w-12 h-12 rounded-full bg-pink-100 flex items-center justify-center mb-2">
+                                    <i class="fas fa-cubes text-xl text-pink-500"></i>
+                                </div>
+                                <span class="font-medium text-gray-800 text-sm">仙草</span>
+                            </div>
+                            <div class="topping option-hover bg-white rounded-2xl p-4 shadow border border-pink-100 cursor-pointer flex flex-col items-center justify-center" data-topping="taro" data-calories="70">
+                                <div class="w-12 h-12 rounded-full bg-pink-100 flex items-center justify-center mb-2">
+                                    <i class="fas fa-dot-circle text-xl text-pink-500"></i>
+                                </div>
+                                <span class="font-medium text-gray-800 text-sm">芋圆</span>
+                            </div>
+                            <div class="topping option-hover bg-white rounded-2xl p-4 shadow border border-pink-100 cursor-pointer flex flex-col items-center justify-center" data-topping="bobo" data-calories="90">
+                                <div class="w-12 h-12 rounded-full bg-pink-100 flex items-center justify-center mb-2">
+                                    <i class="fas fa-circle-notch text-xl text-pink-500"></i>
+                                </div>
+                                <span class="font-medium text-gray-800 text-sm">啵啵</span>
+                            </div>
+                            <div class="topping option-hover bg-white rounded-2xl p-4 shadow border border-pink-100 cursor-pointer flex flex-col items-center justify-center" data-topping="icecream" data-calories="120">
+                                <div class="w-12 h-12 rounded-full bg-pink-100 flex items-center justify-center mb-2">
+                                    <i class="fas fa-ice-cream text-xl text-pink-500"></i>
+                                </div>
+                                <span class="font-medium text-gray-800 text-sm">冰淇淋</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 右侧结果区 -->
+            <div class="bg-white rounded-2xl xhs-shadow p-6 card-gradient h-full flex flex-col">
+                <div class="flex items-center mb-6">
+                    <div class="w-8 h-8 rounded-full bg-pink-100 flex items-center justify-center mr-2">
+                        <i class="fa-solid fa-calculator text-pink-500"></i>
+                    </div>
+                    <h2 class="text-xl font-bold text-pink-600">计算结果</h2>
+                </div>
+                
+                <div class="result hidden animate-fade-in">
+                    <div class="calories-display text-center mb-8 py-6 bg-gradient-to-r from-pink-50 to-pink-100 rounded-2xl">
+                        <div class="text-5xl font-bold text-pink-600" id="total-calories">0</div>
+                        <div class="text-pink-500 font-medium">大卡</div>
+                        <div class="mt-2 text-sm text-gray-600">约等于 <span id="exercise-time" class="font-medium">0</span> 分钟慢跑</div>
+                    </div>
+                    
+                    <div class="selected-items space-y-4 mb-8">
+                        <h3 class="font-bold text-gray-700 flex items-center">
+                            <i class="fa-solid fa-list-check text-pink-500 mr-2"></i> 您的选择：
+                        </h3>
+                        <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                            <div class="bg-pink-50 rounded-xl p-4">
+                                <div class="text-sm text-gray-500 mb-1">奶茶类型</div>
+                                <div class="font-medium flex items-center" id="selected-type-text">
+                                    <i class="fa-solid fa-mug-hot text-pink-500 mr-2"></i> 未选择
+                                </div>
+                            </div>
+                            <div class="bg-pink-50 rounded-xl p-4">
+                                <div class="text-sm text-gray-500 mb-1">糖分</div>
+                                <div class="font-medium flex items-center" id="selected-sugar-text">
+                                    <i class="fa-solid fa-candy-cane text-pink-500 mr-2"></i> 未选择
+                                </div>
+                            </div>
+                            <div class="bg-pink-50 rounded-xl p-4 sm:col-span-2">
+                                <div class="text-sm text-gray-500 mb-1">加料</div>
+                                <div class="font-medium flex items-center" id="selected-toppings-text">
+                                    <i class="fa-solid fa-plus text-pink-500 mr-2"></i> 未选择
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="nutrition-analysis space-y-4 mb-8">
+                        <h3 class="font-bold text-gray-700 flex items-center">
+                            <i class="fa-solid fa-chart-pie text-pink-500 mr-2"></i> 营养成分分析
+                        </h3>
+                        <div class="grid grid-cols-2 gap-4">
+                            <div class="nutrient-item bg-pink-50 rounded-xl p-4">
+                                <div class="nutrient-name text-sm text-gray-500 mb-1">脂肪</div>
+                                <div class="nutrient-value block text-lg font-medium text-gray-800" id="fat-value">0 克</div>
+                            </div>
+                            <div class="nutrient-item bg-pink-50 rounded-xl p-4">
+                                <div class="nutrient-name text-sm text-gray-500 mb-1">糖分</div>
+                                <div class="nutrient-value block text-lg font-medium text-gray-800" id="sugar-value">0 克</div>
+                            </div>
+                            <div class="nutrient-item bg-pink-50 rounded-xl p-4">
+                                <div class="nutrient-name text-sm text-gray-500 mb-1">蛋白质</div>
+                                <div class="nutrient-value block text-lg font-medium text-gray-800" id="protein-value">0 克</div>
+                            </div>
+                            <div class="nutrient-item bg-pink-50 rounded-xl p-4">
+                                <div class="nutrient-name text-sm text-gray-500 mb-1">咖啡因</div>
+                                <div class="nutrient-value block text-lg font-medium text-gray-800" id="caffeine-value">0 mg</div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="health-tips bg-gradient-to-r from-pink-50 to-pink-100 border-l-4 border-pink-400 p-4 rounded-xl mb-8">
+                        <h3 class="font-bold text-pink-600 mb-2 flex items-center">
+                            <i class="fa-solid fa-heart-circle-plus text-pink-500 mr-2"></i> 健康小贴士
+                        </h3>
+                        <p class="text-gray-700" id="health-tip">根据您选择的奶茶，我们为您提供以下健康建议。</p>
+                    </div>
+                    
+                    <div class="buttons grid grid-cols-2 gap-3">
+                        <button class="calculate-btn bg-pink-500 hover:bg-pink-600 text-white font-medium py-3 px-4 rounded-xl btn-effect flex items-center justify-center" id="calculate">
+                            <i class="fa-solid fa-calculator mr-2"></i> 计算热量
+                        </button>
+                        <button class="calculate-btn bg-white border border-pink-300 hover:border-pink-500 text-pink-600 font-medium py-3 px-4 rounded-xl btn-effect flex items-center justify-center" id="view-records">
+                            <i class="fa-solid fa-history mr-2"></i> 查看记录
+                        </button>
+                        <button class="calculate-btn bg-white border border-pink-300 hover:border-pink-500 text-pink-600 font-medium py-3 px-4 rounded-xl btn-effect flex items-center justify-center" id="share-result">
+                            <i class="fa-solid fa-share-alt mr-2"></i> 分享结果
+                        </button>
+                        <button class="calculate-btn bg-white border border-pink-300 hover:border-pink-500 text-pink-600 font-medium py-3 px-4 rounded-xl btn-effect flex items-center justify-center" id="reset">
+                            <i class="fa-solid fa-rotate-left mr-2"></i> 重新选择
+                        </button>
+                    </div>
+                </div>
+                
+                <div class="initial-view flex-grow flex flex-col items-center justify-center text-center animate-fade-in py-10">
+                    <div class="w-32 h-32 rounded-full bg-pink-100 flex items-center justify-center mx-auto mb-6">
+                        <i class="fa-solid fa-mug-hot text-pink-300 text-6xl"></i>
+                    </div>
+                    <p class="text-gray-600 mb-8 max-w-xs mx-auto">
+                        请选择您喜欢的奶茶口味和配料，然后点击"计算热量"按钮
+                    </p>
+                    <button class="calculate-btn bg-pink-500 hover:bg-pink-600 text-white font-medium py-3 px-8 rounded-full btn-effect flex items-center" id="calculate-initial">
+                        开始计算 <i class="fas fa-arrow-right ml-2"></i>
+                    </button>
+                </div>
+            </div>
+        </main>
+
+        <!-- 历史记录模态框 -->
+        <div id="records-modal" class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 hidden">
+            <div class="bg-gradient-to-br from-white to-pink-50 rounded-2xl p-6 max-w-md w-full mx-4 shadow-lg border border-pink-100">
+                <div class="flex justify-between items-center mb-4">
+                    <h3 class="text-xl font-bold text-pink-600 flex items-center">
+                        <i class="fa-solid fa-history mr-2"></i> 历史记录
+                    </h3>
+                    <button id="close-modal" class="text-gray-500 hover:text-gray-700">
+                        <i class="fas fa-times"></i>
+                    </button>
+                </div>
+                <div id="records-list" class="max-h-80 overflow-y-auto space-y-3">
+                    <!-- 记录将在这里动态显示 -->
+                    <div class="text-center py-10">
+                        <i class="fa-solid fa-mug-hot text-4xl text-pink-300 mb-4"></i>
+                        <p class="text-gray-500">暂无记录</p>
+                    </div>
+                </div>
+                <div class="mt-6 pt-4 border-t border-pink-100 flex justify-between">
+                    <button id="clear-records" class="text-sm text-pink-500 hover:text-pink-700 flex items-center">
+                        <i class="fa-solid fa-trash-can mr-1"></i> 清空记录
+                    </button>
+                    <button class="text-sm text-gray-500 hover:text-gray-700" id="close-modal-bottom">
+                        关闭
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <!-- 页脚 -->
+        <footer class="mt-12 text-center text-pink-500/80 text-sm flex flex-col items-center">
+            <div class="flex space-x-4 mb-3">
+                <i class="fa-brands fa-weibo text-pink-400"></i>
+                <i class="fa-brands fa-weixin text-pink-400"></i>
+                <i class="fa-brands fa-xiaohongshu text-pink-400"></i>
+            </div>
+            <p>© 2025 奶茶热量计算器 | 健康生活从了解开始</p>
+        </footer>
+    </div>
+
+    <script>
+        // 应用初始化
+        document.addEventListener('DOMContentLoaded', function() {
+            // 初始化变量
+            let selectedType = null;
+            let selectedSugar = null;
+            let selectedToppings = [];
+            let records = JSON.parse(localStorage.getItem('milkteaRecords')) || [];
+            
+            // 营养成分数据
+            const nutritionData = {
+                milk: { fat: 5, sugar: 10, protein: 3, caffeine: 50 },
+                fruit: { fat: 1, sugar: 15, protein: 1, caffeine: 20 },
+                cheese: { fat: 10, sugar: 5, protein: 5, caffeine: 40 },
+                matcha: { fat: 2, sugar: 8, protein: 2, caffeine: 60 },
+                chocolate: { fat: 8, sugar: 20, protein: 4, caffeine: 45 },
+                pearl: { fat: 2, sugar: 5, protein: 1, caffeine: 0 },
+                pudding: { fat: 3, sugar: 6, protein: 2, caffeine: 0 },
+                coconut: { fat: 1, sugar: 3, protein: 1, caffeine: 0 },
+                redbean: { fat: 1, sugar: 4, protein: 3, caffeine: 0 },
+                grassjelly: { fat: 0, sugar: 2, protein: 0, caffeine: 0 },
+                taro: { fat: 2, sugar: 5, protein: 1, caffeine: 0 },
+                bobo: { fat: 2, sugar: 6, protein: 1, caffeine: 0 },
+                icecream: { fat: 10, sugar: 20, protein: 3, caffeine: 0 }
+            };
+            
+            // 健康小贴士数据
+            const healthTips = [
+                { min: 0, max: 200, tip: "这杯奶茶热量较低，适量饮用无负担！" },
+                { min: 201, max: 300, tip: "这杯奶茶热量中等，建议搭配适量运动哦！" },
+                { min: 301, max: 400, tip: "这杯奶茶热量较高，建议偶尔享用，多注意运动！" },
+                { min: 401, max: Infinity, tip: "这杯奶茶热量很高，建议适量饮用，记得增加运动量！" }
+            ];
+            
+            // 选择处理
+            const options = document.querySelectorAll('.option');
+            const sugars = document.querySelectorAll('.sugar');
+            const toppings = document.querySelectorAll('.topping');
+            
+            // 奶茶类型选择
+            options.forEach(option => {
+                option.addEventListener('click', function() {
+                    // 移除其他选项的选中状态
+                    options.forEach(opt => {
+                        opt.classList.remove('selected');
+                    });
+                    
+                    // 添加当前选项的选中状态
+                    this.classList.add('selected');
+                    selectedType = this;
+                });
+            });
+            
+            // 糖分选择
+            sugars.forEach(sugar => {
+                sugar.addEventListener('click', function() {
+                    // 移除其他选项的选中状态
+                    sugars.forEach(sug => {
+                        sug.classList.remove('selected');
+                    });
+                    
+                    // 添加当前选项的选中状态
+                    this.classList.add('selected');
+                    selectedSugar = this;
+                });
+            });
+            
+            // 加料选择（多选）
+            toppings.forEach(topping => {
+                topping.addEventListener('click', function() {
+                    // 切换选中状态
+                    this.classList.toggle('selected');
+                    
+                    const toppingType = this.dataset.topping;
+                    
+                    if (this.classList.contains('selected')) {
+                        // 添加到选中数组
+                        selectedToppings.push(toppingType);
+                    } else {
+                        // 从选中数组移除
+                        selectedToppings = selectedToppings.filter(t => t !== toppingType);
+                    }
+                });
+            });
+            
+            // 计算按钮事件
+            document.getElementById('calculate').addEventListener('click', calculateCalories);
+            document.getElementById('calculate-initial').addEventListener('click', function() {
+                // 显示结果区域
+                document.querySelector('.result').classList.remove('hidden');
+                document.querySelector('.initial-view').classList.add('hidden');
+                
+                // 执行计算
+                calculateCalories();
+            });
+            
+            // 计算函数
+            function calculateCalories() {
+                // 验证选择
+                if (!selectedType) {
+                    alert('请选择奶茶类型');
+                    return;
+                }
+                
+                if (!selectedSugar) {
+                    alert('请选择糖分');
+                    return;
+                }
+                
+                // 获取基础热量
+                const baseCalories = parseInt(selectedType.dataset.calories);
+                const sugarCalories = parseInt(selectedSugar.dataset.calories);
+                
+                // 计算加料热量
+                let toppingsCalories = 0;
+                let toppingsNames = [];
+                
+                selectedToppings.forEach(toppingType => {
+                    const toppingElement = Array.from(toppings).find(t => t.dataset.topping === toppingType);
+                    if (toppingElement) {
+                        toppingsCalories += parseInt(toppingElement.dataset.calories);
+                        toppingsNames.push(toppingElement.querySelector('span').textContent);
+                    }
+                });
+                
+                // 计算总热量
+                const totalCalories = baseCalories + sugarCalories + toppingsCalories;
+                
+                // 更新显示
+                document.getElementById('total-calories').textContent = totalCalories;
+                document.getElementById('selected-type-text').innerHTML = `<i class="fa-solid fa-mug-hot text-pink-500 mr-2"></i> ${selectedType.querySelector('h3').textContent}`;
+                document.getElementById('selected-sugar-text').innerHTML = `<i class="fa-solid fa-candy-cane text-pink-500 mr-2"></i> ${selectedSugar.querySelector('h3').textContent}`;
+                document.getElementById('selected-toppings-text').innerHTML = `<i class="fa-solid fa-plus text-pink-500 mr-2"></i> ${toppingsNames.length > 0 ? toppingsNames.join(', ') : '无'}`;
+                
+                // 计算运动时间（每分钟消耗7.5大卡）
+                const exerciseTime = Math.round(totalCalories / 7.5);
+                document.getElementById('exercise-time').textContent = exerciseTime;
+                
+                // 计算营养成分
+                const baseType = selectedType.dataset.type;
+                const baseNutrition = nutritionData[baseType] || { fat: 0, sugar: 0, protein: 0, caffeine: 0 };
+                
+                // 加料的营养成分
+                let toppingsNutrition = { fat: 0, sugar: 0, protein: 0, caffeine: 0 };
+                selectedToppings.forEach(toppingType => {
+                    const nutrition = nutritionData[toppingType] || { fat: 0, sugar: 0, protein: 0, caffeine: 0 };
+                    toppingsNutrition.fat += nutrition.fat;
+                    toppingsNutrition.sugar += nutrition.sugar;
+                    toppingsNutrition.protein += nutrition.protein;
+                    toppingsNutrition.caffeine += nutrition.caffeine;
+                });
+                
+                // 总营养成分
+                const totalFat = baseNutrition.fat + toppingsNutrition.fat;
+                const totalSugar = baseNutrition.sugar + toppingsNutrition.sugar;
+                const totalProtein = baseNutrition.protein + toppingsNutrition.protein;
+                const totalCaffeine = baseNutrition.caffeine + toppingsNutrition.caffeine;
+                
+                // 更新营养成分显示
+                document.getElementById('fat-value').textContent = totalFat + ' 克';
+                document.getElementById('sugar-value').textContent = totalSugar + ' 克';
+                document.getElementById('protein-value').textContent = totalProtein + ' 克';
+                document.getElementById('caffeine-value').textContent = totalCaffeine + ' mg';
+                
+                // 设置健康小贴士
+                const tip = healthTips.find(t => totalCalories >= t.min && totalCalories <= t.max);
+                document.getElementById('health-tip').textContent = tip ? tip.tip : "适量饮用奶茶，保持健康生活方式！";
+                
+                // 存储记录
+                const record = {
+                    date: new Date().toLocaleString(),
+                    type: selectedType.querySelector('h3').textContent,
+                    sugar: selectedSugar.querySelector('h3').textContent,
+                    toppings: toppingsNames.join(', ') || '无',
+                    totalCalories: totalCalories
+                };
+                
+                records.unshift(record);
+                localStorage.setItem('milkteaRecords', JSON.stringify(records));
+            }
+            
+            // 查看记录按钮
+            document.getElementById('view-records').addEventListener('click', function() {
+                renderRecords();
+                document.getElementById('records-modal').classList.remove('hidden');
+            });
+            
+            // 渲染记录
+            function renderRecords() {
+                const recordsList = document.getElementById('records-list');
+                recordsList.innerHTML = '';
+                
+                if (records.length === 0) {
+                    recordsList.innerHTML = `
+                        <div class="text-center py-10">
+                            <i class="fa-solid fa-mug-hot text-4xl text-pink-300 mb-4"></i>
+                            <p class="text-gray-500">暂无记录</p>
+                        </div>
+                    `;
+                    return;
+                }
+                
+                records.forEach((record, index) => {
+                    const recordElement = document.createElement('div');
+                    recordElement.className = 'bg-pink-50 rounded-xl p-4';
+                    recordElement.innerHTML = `
+                        <div class="flex justify-between items-start mb-2">
+                            <span class="font-bold text-pink-600">记录 #${index + 1}</span>
+                            <span class="text-xs text-gray-500">${record.date}</span>
+                        </div>
+                        <div class="grid grid-cols-3 gap-2 text-sm">
+                            <div>
+                                <div class="text-gray-500">类型</div>
+                                <div>${record.type}</div>
+                            </div>
+                            <div>
+                                <div class="text-gray-500">糖分</div>
+                                <div>${record.sugar}</div>
+                            </div>
+                            <div>
+                                <div class="text-gray-500">热量</div>
+                                <div class="font-bold">${record.totalCalories} 大卡</div>
+                            </div>
+                        </div>
+                        <div class="mt-2 text-sm">
+                            <div class="text-gray-500">加料</div>
+                            <div>${record.toppings}</div>
+                        </div>
+                    `;
+                    recordsList.appendChild(recordElement);
+                });
+            }
+            
+            // 关闭模态框
+            document.getElementById('close-modal').addEventListener('click', function() {
+                document.getElementById('records-modal').classList.add('hidden');
+            });
+            
+            document.getElementById('close-modal-bottom').addEventListener('click', function() {
+                document.getElementById('records-modal').classList.add('hidden');
+            });
+            
+            // 清空记录
+            document.getElementById('clear-records').addEventListener('click', function() {
+                if (confirm('确定要清空所有记录吗？')) {
+                    records = [];
+                    localStorage.removeItem('milkteaRecords');
+                    renderRecords();
+                }
+            });
+            
+            // 重置按钮
+            document.getElementById('reset').addEventListener('click', function() {
+                // 清除所有选择状态
+                options.forEach(option => option.classList.remove('selected'));
+                sugars.forEach(sugar => sugar.classList.remove('selected'));
+                toppings.forEach(topping => topping.classList.remove('selected'));
+                
+                // 重置变量
+                selectedType = null;
+                selectedSugar = null;
+                selectedToppings = [];
+                
+                // 切换视图
+                document.querySelector('.result').classList.add('hidden');
+                document.querySelector('.initial-view').classList.remove('hidden');
+            });
+            
+            // 分享结果
+            document.getElementById('share-result').addEventListener('click', function() {
+                if (document.querySelector('.result').classList.contains('hidden')) {
+                    alert('请先计算热量后再分享');
+                    return;
+                }
+                
+                const totalCalories = document.getElementById('total-calories').textContent;
+                const type = document.getElementById('selected-type-text').textContent.replace('未选择', '');
+                const sugar = document.getElementById('selected-sugar-text').textContent.replace('未选择', '');
+                const toppingsText = document.getElementById('selected-toppings-text').textContent.replace('未选择', '');
+                
+                const shareText = `我刚刚用奶茶热量计算器算出我点的${type}（${sugar}，${toppingsText}）总热量为 ${totalCalories} 大卡！快来一起算算吧！`;
+                
+                if (navigator.share) {
+                    navigator.share({
+                        title: '奶茶热量计算器',
+                        text: shareText,
+                        url: window.location.href
+                    })
+                    .catch(error => console.log('分享失败:', error));
+                } else {
+                    // 备选方案：复制到剪贴板
+                    navigator.clipboard.writeText(shareText)
+                        .then(() => alert('结果已复制到剪贴板，可以分享给朋友啦！'))
+                        .catch(err => console.error('无法复制内容:', err));
+                }
+            });
+        });
+    </script>
+</body>
+</html>
